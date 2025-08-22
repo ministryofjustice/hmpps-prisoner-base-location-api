@@ -1,0 +1,33 @@
+package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.services.internal
+
+import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.roleconfig.ConsumerConfig
+
+@Component
+@Service
+class AuthoriseConsumerService {
+  fun doesConsumerHaveIncludesAccess(
+    consumerConfig: ConsumerConfig?,
+    requestedPath: String,
+  ): Boolean {
+    consumerConfig?.include?.forEach {
+      if (Regex(it).matches(requestedPath)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  fun doesConsumerHaveRoleAccess(
+    consumerRolesInclude: List<String>,
+    requestPath: String,
+  ): Boolean {
+    consumerRolesInclude.forEach {
+      if (Regex(it).matches(requestPath)) {
+        return true
+      }
+    }
+    return false
+  }
+}

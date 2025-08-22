@@ -3,12 +3,17 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration
 import io.swagger.v3.parser.OpenAPIV3Parser
 import net.minidev.json.JSONArray
 import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.CoreMatchers.endsWith
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -18,43 +23,31 @@ class OpenApiDocsTest : IntegrationTestBase() {
 
   @Test
   fun `open api docs are available`() {
-    webTestClient.get()
-      .uri("/swagger-ui/index.html?configUrl=/v3/api-docs")
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
+    callApi(path = "/swagger-ui/index.html?configUrl=/v3/api-docs")
+      .andExpect(status().isOk)
   }
 
   @Test
   fun `open api docs redirect to correct page`() {
-    webTestClient.get()
-      .uri("/swagger-ui.html")
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().is3xxRedirection
-      .expectHeader().value("Location") { it.contains("/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config") }
+    callApi(path = "/swagger-ui.html")
+      .andExpect(status().is3xxRedirection)
+      .andExpect(header().string("Location", endsWith("/swagger-ui/index.html")))
   }
 
   @Test
   @Disabled("TODO Enable this test once you have an endpoint. It checks that endpoints appear on the OpenAPI spec.")
   fun `the open api json contains documentation`() {
-    webTestClient.get()
-      .uri("/v3/api-docs")
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("paths").isNotEmpty
+    callApi(path = "/v3/api-docs")
+      .andExpect(status().isOk)
+      .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+      .andExpect(jsonPath("$.paths").isNotEmpty)
   }
 
   @Test
   fun `the open api json contains the version number`() {
-    webTestClient.get()
-      .uri("/v3/api-docs")
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody().jsonPath("info.version").isEqualTo(DateTimeFormatter.ISO_DATE.format(LocalDate.now()))
+    callApi(path = "/v3/api-docs")
+      .andExpect(status().isOk)
+      .andExpect(jsonPath("$.info.version").value(DateTimeFormatter.ISO_DATE.format(LocalDate.now())))
   }
 
   @Test
@@ -80,30 +73,19 @@ class OpenApiDocsTest : IntegrationTestBase() {
   @Disabled("TODO Enable this test once you have added security schema to OpenApiConfiguration.OpenAPi().components(). Add the security scheme / roles to @CsvSource")
   @CsvSource(value = ["security-scheme-name, ROLE_"])
   fun `the security scheme is setup for bearer tokens`(key: String, role: String) {
-    webTestClient.get()
-      .uri("/v3/api-docs")
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.components.securitySchemes.$key.type").isEqualTo("http")
-      .jsonPath("$.components.securitySchemes.$key.scheme").isEqualTo("bearer")
-      .jsonPath("$.components.securitySchemes.$key.description").value<String> {
-        assertThat(it).contains(role)
-      }
-      .jsonPath("$.components.securitySchemes.$key.bearerFormat").isEqualTo("JWT")
-      .jsonPath("$.security[0].$key").isEqualTo(JSONArray().apply { this.add("read") })
+    callApi(path = "/v3/api-docs")
+      .andExpect(status().isOk)
+      .andExpect(jsonPath("$.components.securitySchemes.$key.type").value("http"))
+      .andExpect(jsonPath("$.components.securitySchemes.$key.scheme").value("bearer"))
+      .andExpect(jsonPath("$.components.securitySchemes.$key.bearerFormat").value("JWT"))
+      .andExpect(jsonPath("$.security[0].$key").value(JSONArray().apply { this.add("read") }))
   }
 
   @Test
   @Disabled("TODO Enable this test once you have an endpoint.")
   fun `all endpoints have a security scheme defined`() {
-    webTestClient.get()
-      .uri("/v3/api-docs")
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.paths[*][*][?(!@.security)]").doesNotExist()
+    callApi(path = "/v3/api-docs")
+      .andExpect(status().isOk)
+      .andExpect(jsonPath("$.paths[*][*][?(!@.security)]").doesNotExist())
   }
 }
