@@ -8,21 +8,39 @@ spring:
   codec:
     max-in-memory-size: 10MB
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${hmpps.auth.url}/.well-known/jwks.json
+
+      client:
+        registration:
+          integration-api:
+            provider: hmpps-auth
+            client-id: ${integration-api.client.id}
+            client-secret: ${integration-api.client.secret}
+            authorization-grant-type: client_credentials
+            scope: read
+        provider:
+          hmpps-auth:
+            token-uri: ${hmpps.auth.url}/oauth/token
+
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${hmpps-auth.url}/.well-known/jwks.json
+  profiles:
+    group:
+      test:
+        - "stdout"
 
-      client:
-        provider:
-          hmpps-auth:
-            token-uri: ${hmpps-auth.url}/oauth/token
+springdoc:
+  default-produces-media-type: application/json
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
 
 server:
   port: 8080
@@ -55,3 +73,16 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+services:
+  prisoner-offender-search:
+    base-url: "TestURL"
+  ndelius:
+    base-url: "TestURL"
+  hmpps-auth:
+    base-url: "OtherTestURL"
+    username: hmpps-integration-api-client
+    password: clientsecret
+
+sentry:
+  traces-sample-rate: "0.05"
