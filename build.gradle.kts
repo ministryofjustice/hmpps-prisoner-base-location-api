@@ -31,3 +31,6 @@ tasks {
     compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
   }
 }
+dependencyCheck {
+  nvd.datafeedUrl = "file:///opt/vulnz/cache"
+}
