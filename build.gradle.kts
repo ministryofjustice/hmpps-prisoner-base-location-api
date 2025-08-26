@@ -2,8 +2,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.4"
-  kotlin("plugin.spring") version "2.2.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.7"
+  kotlin("plugin.spring") version "2.2.10"
+  id("org.owasp.dependencycheck") version "12.1.3"
   id("org.openapi.generator") version "7.13.0"
   id("jacoco")
 }
@@ -20,7 +21,7 @@ configurations {
 }
 
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.11") {
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.5.0") {
     implementation("org.apache.commons:commons-lang3:3.18.0")
   }
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -31,7 +32,7 @@ dependencies {
   implementation("io.github.microutils:kotlin-logging:3.0.5")
 
   // Test dependencies
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.11")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.5.0")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("io.kotest:kotest-assertions-json-jvm:5.9.1")
   testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
@@ -98,4 +99,8 @@ testlogger {
 // this is to address JLLeitschuh/ktlint-gradle#809
 ktlint {
   version = "1.5.0"
+}
+
+dependencyCheck {
+  nvd.datafeedUrl = "file:///opt/vulnz/cache"
 }
