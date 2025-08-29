@@ -1,24 +1,20 @@
 package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.services
 
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import jakarta.validation.ValidationException
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.gateways.NDeliusGateway
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.gateways.PrisonerOffenderSearchGateway
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Identifiers
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.NomisNumber
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Person
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PersonOnProbation
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Response
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.UpstreamApi
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.UpstreamApiError
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch.POSPrisoner
 
 @ContextConfiguration(
   initializers = [ConfigDataApplicationContextInitializer::class],
@@ -31,8 +27,7 @@ class GetPersonServiceTest(
 ) : DescribeSpec({
 
   beforeEach {
-    Mockito.reset(prisonerOffenderSearchGateway)
-    Mockito.reset(deliusGateway)
+    Mockito.reset(prisonerOffenderSearchGateway, deliusGateway)
   }
 
   describe("getNomisNumber") {
@@ -40,60 +35,31 @@ class GetPersonServiceTest(
     val crnNumber = "CD123123"
 
     describe("when given a invalid hmppsId") {
-      it("should return bad request") {
+      it("should return failure") {
         val invalidNomsNumber = "N1234PSX"
 
         val result = getPersonService.getNomisNumber(invalidNomsNumber)
 
-        result.data.shouldBeNull()
-        result.errors.shouldBe(listOf(UpstreamApiError(causedBy = UpstreamApi.PRISON_API, type = UpstreamApiError.Type.BAD_REQUEST, description = "Invalid HMPPS ID: $invalidNomsNumber")))
+        result.isFailure shouldBe true
+        result.onFailure { error ->
+          error shouldBe ValidationException("hmppsId is invalid")
+        }
       }
     }
 
     describe("when given a nomis number") {
-      it("should return it if a prison offender search is successful") {
-        val prisoner = POSPrisoner(
-          firstName = "John",
-          lastName = "Doe",
-          prisonId = "ABC",
-          youthOffender = false,
-        )
-        whenever(prisonerOffenderSearchGateway.getPrisonOffender(nomsNumber)).thenReturn(
-          Response(
-            data = prisoner,
-            errors = emptyList(),
-          ),
-        )
-
+      it("should return it") {
         val result = getPersonService.getNomisNumber(nomsNumber)
 
-        result.data.shouldBe(NomisNumber(nomsNumber))
-        result.errors.shouldBeEmpty()
-      }
-
-      it("return an error if the prison offender search errors") {
-        val errors = listOf(
-          UpstreamApiError(
-            causedBy = UpstreamApi.PRISON_API,
-            type = UpstreamApiError.Type.INTERNAL_SERVER_ERROR,
-          ),
-        )
-        whenever(prisonerOffenderSearchGateway.getPrisonOffender(nomsNumber)).thenReturn(
-          Response(
-            data = null,
-            errors = errors,
-          ),
-        )
-
-        val result = getPersonService.getNomisNumber(nomsNumber)
-
-        result.data.shouldBeNull()
-        result.errors.shouldBe(errors)
+        result.isSuccess shouldBe true
+        result.onSuccess { nomisNumber ->
+          nomisNumber shouldBe NomisNumber(nomsNumber)
+        }
       }
     }
 
     describe("when given a crn number") {
-      it("should return a nomis number one if the delius search returns one") {
+      it("should return a nomis number if the delius search returns one") {
         val personOnProbation = PersonOnProbation(
           Person(
             firstName = "John",
@@ -105,20 +71,17 @@ class GetPersonServiceTest(
           ),
           underActiveSupervision = true,
         )
-        whenever(deliusGateway.getPerson(crnNumber)).thenReturn(
-          Response(
-            data = personOnProbation,
-            errors = emptyList(),
-          ),
-        )
+        whenever(deliusGateway.getPerson(crnNumber)).thenReturn(Result.success(personOnProbation))
 
         val result = getPersonService.getNomisNumber(crnNumber)
 
-        result.data.shouldBe(NomisNumber(nomsNumber))
-        result.errors.shouldBeEmpty()
+        result.isSuccess shouldBe true
+        result.onSuccess { nomisNumber ->
+          nomisNumber.shouldBe(NomisNumber(nomsNumber))
+        }
       }
 
-      it("should return a 404 error if the delius search does not return a nomis number") {
+      it("should return a not found error if the delius search does not return a nomis number") {
         val personOnProbation = PersonOnProbation(
           Person(
             firstName = "John",
@@ -126,36 +89,26 @@ class GetPersonServiceTest(
           ),
           underActiveSupervision = true,
         )
-        whenever(deliusGateway.getPerson(crnNumber)).thenReturn(
-          Response(
-            data = personOnProbation,
-            errors = emptyList(),
-          ),
-        )
+        whenever(deliusGateway.getPerson(crnNumber)).thenReturn(Result.success(personOnProbation))
 
         val result = getPersonService.getNomisNumber(crnNumber)
 
-        result.data.shouldBeNull()
-        result.errors.shouldBe(
-          listOf(
-            UpstreamApiError(
-              causedBy = UpstreamApi.NDELIUS,
-              type = UpstreamApiError.Type.ENTITY_NOT_FOUND,
-              "NOMIS number not found",
-            ),
-          ),
-        )
+        result.isFailure shouldBe true
+        result.onFailure { error ->
+          error shouldBe EntityNotFoundException("NOMIS number not found")
+        }
       }
 
       it("return an error if the delius search errors") {
-        val errors =
-          listOf(UpstreamApiError(causedBy = UpstreamApi.NDELIUS, type = UpstreamApiError.Type.INTERNAL_SERVER_ERROR))
-        whenever(deliusGateway.getPerson(crnNumber)).thenReturn(Response(data = null, errors = errors))
+        val error = Exception("something went wrong")
+        whenever(deliusGateway.getPerson(crnNumber)).thenReturn(Result.failure(error))
 
         val result = getPersonService.getNomisNumber(crnNumber)
 
-        result.data.shouldBeNull()
-        result.errors.shouldBe(errors)
+        result.isFailure shouldBe true
+        result.onFailure { e ->
+          e shouldBe error
+        }
       }
     }
   }

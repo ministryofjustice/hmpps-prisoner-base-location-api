@@ -4,12 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exception.ResponseException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.extensions.WebClientWrapper
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.extensions.WebClientWrapper.WebClientWrapperResponse
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PersonOnProbation
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Response
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.UpstreamApi
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.UpstreamApiError
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch.Offender
 
 @Component
@@ -29,57 +28,32 @@ class NDeliusGateway(
     )
   }
 
-  fun getOffender(id: String? = null): Response<Offender?> {
-    val queryField =
-      if (isNomsNumber(id)) {
-        "nomsNumber"
-      } else {
-        "crn"
-      }
-
+  fun getOffender(crnNumber: String): Result<Offender> {
     val result =
       webClient.requestList<Offender>(
         HttpMethod.POST,
         "/search/probation-cases",
         authenticationHeader(),
         UpstreamApi.NDELIUS,
-        mapOf(queryField to id),
+        mapOf("crn" to crnNumber),
       )
 
     return when (result) {
       is WebClientWrapperResponse.Success -> {
-        val persons = result.data
-        val person = persons.firstOrNull()?.toPerson()
+        val offender = result.data.firstOrNull()!!
 
-        Response(
-          data = persons.firstOrNull(),
-          errors =
-          if (person == null) {
-            listOf(
-              UpstreamApiError(
-                causedBy = UpstreamApi.NDELIUS,
-                type = UpstreamApiError.Type.ENTITY_NOT_FOUND,
-              ),
-            )
-          } else {
-            emptyList()
-          },
-        )
+        Result.success(offender)
       }
 
       is WebClientWrapperResponse.Error -> {
-        Response(
-          data = null,
-          errors = result.errors,
-        )
+        Result.failure(ResponseException("broken", 500))
       }
     }
   }
 
-  fun getPerson(id: String? = null): Response<PersonOnProbation?> {
-    val offender = getOffender(id)
-    return Response(data = offender.data?.toPersonOnProbation(), errors = offender.errors)
-  }
+  fun getPerson(crnNumber: String): Result<PersonOnProbation> {
+    val offender = getOffender(crnNumber)
 
-  private fun isNomsNumber(id: String?): Boolean = id?.matches(Regex("^[A-Z]\\d{4}[A-Z]{2}+$")) == true
+    return offender.map { it.toPersonOnProbation() }
+  }
 }

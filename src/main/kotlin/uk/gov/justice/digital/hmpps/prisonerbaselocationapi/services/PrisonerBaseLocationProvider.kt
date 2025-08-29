@@ -4,8 +4,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.gateways.PrisonerOffenderSearchGateway
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.LastMovementType
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.NomisNumber
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PrisonerBaseLocation
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Response
 import java.time.LocalDate
@@ -23,6 +25,27 @@ class PrisonerBaseLocationProvider(
 ) {
   companion object {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+  }
+
+  fun getBaseLocation(nomisNumber: NomisNumber): Result<PrisonerBaseLocation> {
+    val res = prisonerOffenderSearchGateway.getPrisonOffender(nomsNumber = nomisNumber.nomisNumber)
+
+    if (res.data == null) {
+      throw EntityNotFoundException("Location data not found for nomsId: ${nomisNumber.nomisNumber}")
+    }
+
+    val data = res.data
+    val inPrison = data.inOutStatus == "IN"
+
+    return Result.success(
+      PrisonerBaseLocation(
+        inPrison = inPrison,
+        prisonId = if (inPrison) data.prisonId else null,
+        lastPrisonId = data.lastPrisonId,
+        lastMovementType = data.lastMovementTypeCode?.let { translateLastMovementType(it) },
+        receptionDate = data.receptionDate?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) },
+      ),
+    )
   }
 
   fun getPrisonerBaseLocation(nomisNumber: String): Response<PrisonerBaseLocation?> {

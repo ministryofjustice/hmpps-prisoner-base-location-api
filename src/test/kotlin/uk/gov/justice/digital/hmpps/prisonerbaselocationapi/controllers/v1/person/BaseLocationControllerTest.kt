@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.controllers.v1.pers
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import jakarta.validation.ValidationException
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.times
@@ -15,13 +16,11 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.extensions.removeWhitespaceAndNewlines
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.helpers.IntegrationAPIMockMvc
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.LastMovementType
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PrisonerBaseLocation
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Response
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.UpstreamApi
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.UpstreamApiError
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.services.GetPrisonerBaseLocationForPersonService
 import java.time.LocalDate
 
@@ -35,20 +34,21 @@ class BaseLocationControllerTest(
     val hmppsId = "A1234AA"
     val path = "/v1/persons/$hmppsId/prisoner-base-location"
     val mockMvc = IntegrationAPIMockMvc(springMockMvc)
-    val filters = null
 
-    fun prisonerBaseLocationReceived() = PrisonerBaseLocation(
-      inPrison = true,
-      prisonId = "MDI",
-      lastPrisonId = "MDI",
-      lastMovementType = LastMovementType.ADMISSION,
-      receptionDate = LocalDate.of(2025, 9, 30),
+    fun prisonerBaseLocationReceived() = Result.success(
+      PrisonerBaseLocation(
+        inPrison = true,
+        prisonId = "MDI",
+        lastPrisonId = "MDI",
+        lastMovementType = LastMovementType.ADMISSION,
+        receptionDate = LocalDate.of(2025, 9, 30),
+      ),
     )
 
     describe("GET $path") {
       beforeTest {
         reset(getPrisonerBaseLocationForPersonService)
-        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId, filters)).thenReturn(Response(data = prisonerBaseLocationReceived()))
+        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId)).thenReturn(prisonerBaseLocationReceived())
       }
 
       it("returns a 200 OK status code") {
@@ -60,7 +60,7 @@ class BaseLocationControllerTest(
       it("gets the prisoner base location for a person with the matching ID") {
         mockMvc.performAuthorised(path)
 
-        verify(getPrisonerBaseLocationForPersonService, times(1)).execute(hmppsId, filters)
+        verify(getPrisonerBaseLocationForPersonService, times(1)).execute(hmppsId)
       }
 
       it("returns the prisoner base location for a person with the matching ID") {
@@ -80,17 +80,8 @@ class BaseLocationControllerTest(
       }
 
       it("returns a 404 NOT FOUND status code when person isn't found in the upstream API") {
-        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId, filters)).thenReturn(
-          Response(
-            data = null,
-            errors =
-            listOf(
-              UpstreamApiError(
-                causedBy = UpstreamApi.PRISONER_OFFENDER_SEARCH,
-                type = UpstreamApiError.Type.ENTITY_NOT_FOUND,
-              ),
-            ),
-          ),
+        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId)).thenReturn(
+          Result.failure(EntityNotFoundException("NOMIS number not found")),
         )
 
         val result = mockMvc.performAuthorised(path)
@@ -99,17 +90,8 @@ class BaseLocationControllerTest(
       }
 
       it("returns a 400 BAD Request status code when an invalid hmpps id is found in the upstream API") {
-        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId, filters)).thenReturn(
-          Response(
-            data = null,
-            errors =
-            listOf(
-              UpstreamApiError(
-                causedBy = UpstreamApi.PRISON_API,
-                type = UpstreamApiError.Type.BAD_REQUEST,
-              ),
-            ),
-          ),
+        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId)).thenReturn(
+          Result.failure(ValidationException("hmppsId is invalid")),
         )
 
         val result = mockMvc.performAuthorised(path)
@@ -118,7 +100,7 @@ class BaseLocationControllerTest(
       }
 
       it("fails with the appropriate error when an upstream service is down") {
-        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId, filters)).doThrow(
+        whenever(getPrisonerBaseLocationForPersonService.execute(hmppsId)).doThrow(
           WebClientResponseException(500, "MockError", null, null, null, null),
         )
 
