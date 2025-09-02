@@ -12,8 +12,8 @@ import org.springframework.http.MediaType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@Disabled("Not implemented yet")
 // TODO: double check ALL of this
+@Disabled("Not implemented yet")
 class OpenApiDocsTest : IntegrationTestBase() {
   @LocalServerPort
   private val port: Int = 0

@@ -60,7 +60,7 @@ class HmppsBaseLocationApiExceptionHandler {
     .body(
       ErrorResponse(
         status = INTERNAL_SERVER_ERROR,
-        developerMessage = "Unexpected error: ${e.message} ${e.toString()}",
+        developerMessage = "Unexpected error: ${e.message}",
         userMessage = e.message,
       ),
     ).also { log.info("Unexpected exception: {}", e.message) }
