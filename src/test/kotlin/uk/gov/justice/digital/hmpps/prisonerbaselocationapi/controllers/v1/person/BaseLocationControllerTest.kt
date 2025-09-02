@@ -68,7 +68,7 @@ class BaseLocationControllerTest(
 
       it("returns a 404 NOT FOUND status code when person isn't found in the upstream API") {
         whenever(getPrisonerBaseLocationForPersonService.getPrisonOffender(any())).thenThrow(
-          EntityNotFoundException("not found")
+          EntityNotFoundException("not found"),
         )
 
         val result = mockMvc.performAuthorised(path)
@@ -78,7 +78,7 @@ class BaseLocationControllerTest(
 
       it("returns a 400 BAD Request status code when an invalid hmpps id is found in the upstream API") {
         whenever(getPersonService.getNomisNumber(any())).thenThrow(
-          ValidationException("hmppsId is invalid")
+          ValidationException("hmppsId is invalid"),
         )
 
         val result = mockMvc.performAuthorised(path)

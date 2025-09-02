@@ -47,8 +47,8 @@ class PrisonOffenderSearchGatewayTest(
           aResponse()
             .withStatus(status)
             .withHeader("Content-Type", "application/json")
-            .withBody(body)
-        )
+            .withBody(body),
+        ),
     )
   }
 

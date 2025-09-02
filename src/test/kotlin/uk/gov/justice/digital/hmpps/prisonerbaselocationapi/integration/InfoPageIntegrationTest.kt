@@ -1,17 +1,16 @@
 package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration
 
-import org.junit.jupiter.api.Test
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import kotlin.test.Test
 
-/*
 class InfoPageIntegrationTest : IntegrationTestBase() {
   @Test
   fun `Info page is accessible`() {
-    callApi("/info")
-      .andExpect(status().isOk)
-      .andExpect(jsonPath("$.build.name").value("hmpps-prisoner-base-location-api"))
+    webTestClient.get()
+      .uri("/info")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("$.build.name").isEqualTo("hmpps-prisoner-base-location-api")
   }
 }
-
- */

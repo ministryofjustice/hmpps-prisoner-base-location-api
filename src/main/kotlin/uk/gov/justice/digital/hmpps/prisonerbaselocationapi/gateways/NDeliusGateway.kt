@@ -36,5 +36,4 @@ class NDeliusGateway(
 
     return offender.getNomisNumber()?.let { NomisNumber(it) }
   }
-
 }

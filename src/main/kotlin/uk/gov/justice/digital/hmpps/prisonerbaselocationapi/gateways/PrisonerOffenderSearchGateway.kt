@@ -24,13 +24,11 @@ class PrisonerOffenderSearchGateway(
     )
   }
 
-  fun getPrisonOffender(nomsNumber: NomisNumber): POSPrisoner {
-    return webClient
-        .get()
-        .uri("/prisoner/${nomsNumber.nomisNumber}")
-        .headers({ header -> authenticationHeader().forEach { requestHeader -> header.set(requestHeader.key, requestHeader.value) } })
-        .retrieve()
-        .bodyToMono(POSPrisoner::class.java)
-        .block()!!
-  }
+  fun getPrisonOffender(nomsNumber: NomisNumber): POSPrisoner = webClient
+    .get()
+    .uri("/prisoner/${nomsNumber.nomisNumber}")
+    .headers({ header -> authenticationHeader().forEach { requestHeader -> header.set(requestHeader.key, requestHeader.value) } })
+    .retrieve()
+    .bodyToMono(POSPrisoner::class.java)
+    .block()!!
 }

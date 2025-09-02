@@ -22,34 +22,35 @@ class GetPrisonerBaseLocationForPersonServiceTest(
 ) : DescribeSpec(
   {
 
-  beforeEach {
-    Mockito.reset(prisonerOffenderSearchGateway)
-  }
-
-  describe("getPrisonOffender") {
-    val nomisNumber = NomisNumber("A1234BC")
-    val prisoner = POSPrisoner(firstName = "John", lastName = "Doe", youthOffender = false)
-
-    it("should return a offender") {
-      whenever(prisonerOffenderSearchGateway.getPrisonOffender(nomisNumber))
-        .thenReturn(prisoner)
-
-      val response = getPrisonerBaseLocationForPersonService.getPrisonOffender(nomisNumber)
-
-      response shouldBe prisoner
+    beforeEach {
+      Mockito.reset(prisonerOffenderSearchGateway)
     }
 
-    it("should not catch any thrown exceptions") {
-      val thrownEx = NullPointerException()
+    describe("getPrisonOffender") {
+      val nomisNumber = NomisNumber("A1234BC")
+      val prisoner = POSPrisoner(firstName = "John", lastName = "Doe", youthOffender = false)
 
-      whenever(prisonerOffenderSearchGateway.getPrisonOffender(nomisNumber))
-        .thenThrow(thrownEx)
+      it("should return a offender") {
+        whenever(prisonerOffenderSearchGateway.getPrisonOffender(nomisNumber))
+          .thenReturn(prisoner)
 
-      val exception = shouldThrow<NullPointerException> {
-        getPrisonerBaseLocationForPersonService.getPrisonOffender(nomisNumber)
+        val response = getPrisonerBaseLocationForPersonService.getPrisonOffender(nomisNumber)
+
+        response shouldBe prisoner
       }
 
-      exception shouldBe thrownEx
+      it("should not catch any thrown exceptions") {
+        val thrownEx = NullPointerException()
+
+        whenever(prisonerOffenderSearchGateway.getPrisonOffender(nomisNumber))
+          .thenThrow(thrownEx)
+
+        val exception = shouldThrow<NullPointerException> {
+          getPrisonerBaseLocationForPersonService.getPrisonOffender(nomisNumber)
+        }
+
+        exception shouldBe thrownEx
+      }
     }
-  }
-})
+  },
+)

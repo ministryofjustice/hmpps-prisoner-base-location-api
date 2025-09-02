@@ -10,7 +10,5 @@ import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffen
 class GetPrisonerBaseLocationForPersonService(
   @Autowired private val prisonerOffenderSearchGateway: PrisonerOffenderSearchGateway,
 ) {
-  fun getPrisonOffender(nomisNumber: NomisNumber): POSPrisoner {
-    return prisonerOffenderSearchGateway.getPrisonOffender(nomisNumber)
-  }
+  fun getPrisonOffender(nomisNumber: NomisNumber): POSPrisoner = prisonerOffenderSearchGateway.getPrisonOffender(nomisNumber)
 }

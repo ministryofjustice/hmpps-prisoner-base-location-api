@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.controllers
 
 import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_GATEWAY
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
@@ -21,7 +20,7 @@ class HmppsBaseLocationApiExceptionHandler {
 
   // Custom exceptions
   @ExceptionHandler(ValidationException::class)
-  fun handleValidationException(e: ValidationException): ResponseEntity<uk.gov.justice.hmpps.kotlin.common.ErrorResponse> = ResponseEntity
+  fun handleValidationException(e: ValidationException): ResponseEntity<ErrorResponse> = ResponseEntity
     .status(BAD_REQUEST)
     .body(
       ErrorResponse(
@@ -108,13 +107,4 @@ data class ErrorResponse(
   val userMessage: String? = null,
   val developerMessage: String? = null,
   val moreInfo: String? = null,
-) {
-  constructor(
-    status: HttpStatus,
-    errorCode: Int? = null,
-    userMessage: String? = null,
-    developerMessage: String? = null,
-    moreInfo: String? = null,
-  ) :
-    this(status.value(), errorCode, userMessage, developerMessage, moreInfo)
-}
+)
