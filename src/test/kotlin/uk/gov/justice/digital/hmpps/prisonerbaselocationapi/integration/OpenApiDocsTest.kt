@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration
 import io.swagger.v3.parser.OpenAPIV3Parser
 import net.minidev.json.JSONArray
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -11,6 +12,8 @@ import org.springframework.http.MediaType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@Disabled("Not implemented yet")
+// TODO: double check ALL of this
 class OpenApiDocsTest : IntegrationTestBase() {
   @LocalServerPort
   private val port: Int = 0

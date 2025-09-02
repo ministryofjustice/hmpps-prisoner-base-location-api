@@ -2,14 +2,17 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.controllers
 
 import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_GATEWAY
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exception.HmppsAuthFailedException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exception.LimitedAccessException
@@ -17,6 +20,50 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestControllerAdvice
 class HmppsBaseLocationApiExceptionHandler {
+
+  @ExceptionHandler(NoResourceFoundException::class)
+  fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        userMessage = "No resource found failure: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.info("No resource found exception: {}", e.message) }
+
+  @ExceptionHandler(AccessDeniedException::class)
+  fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.FORBIDDEN)
+    .body(
+      ErrorResponse(
+        status = HttpStatus.FORBIDDEN,
+        userMessage = "Forbidden: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Forbidden (403) returned: {}", e.message) }
+
+  @ExceptionHandler(AuthorizationDeniedException::class)
+  fun handleAuthorizationDeniedException(e: AuthorizationDeniedException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.FORBIDDEN)
+    .body(
+      ErrorResponse(
+        status = HttpStatus.FORBIDDEN,
+        userMessage = "Forbidden: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Forbidden (403) returned: {}", e.message) }
+
+  @ExceptionHandler(java.lang.Exception::class)
+  fun handleException(e: java.lang.Exception): ResponseEntity<ErrorResponse?>? = ResponseEntity
+    .status(INTERNAL_SERVER_ERROR)
+    .body(
+      ErrorResponse(
+        status = INTERNAL_SERVER_ERROR,
+        developerMessage = "Unexpected error: ${e.message} ${e.toString()}",
+        userMessage = e.message,
+      ),
+    ).also { log.info("Unexpected exception: {}", e.message) }
 
   // Custom exceptions
   @ExceptionHandler(ValidationException::class)
@@ -62,17 +109,6 @@ class HmppsBaseLocationApiExceptionHandler {
         userMessage = e.message,
       ),
     ).also { log.info("Authentication error in HMPPS Auth: {}", e.message) }
-
-  @ExceptionHandler(java.lang.Exception::class)
-  fun handleException(e: java.lang.Exception): ResponseEntity<ErrorResponse?>? = ResponseEntity
-    .status(INTERNAL_SERVER_ERROR)
-    .body(
-      ErrorResponse(
-        status = INTERNAL_SERVER_ERROR,
-        developerMessage = "Unexpected error: ${e.message}",
-        userMessage = e.message,
-      ),
-    ).also { log.info("Unexpected exception: {}", e.message) }
 
   @ExceptionHandler(WebClientResponseException::class)
   fun handleWebClientResponseException(e: WebClientResponseException): ResponseEntity<ErrorResponse?>? = ResponseEntity
