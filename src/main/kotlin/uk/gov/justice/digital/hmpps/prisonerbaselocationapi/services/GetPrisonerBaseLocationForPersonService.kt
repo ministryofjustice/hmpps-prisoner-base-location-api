@@ -2,16 +2,15 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.services
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PrisonerBaseLocation
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.gateways.PrisonerOffenderSearchGateway
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.NomisNumber
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch.POSPrisoner
 
 @Service
 class GetPrisonerBaseLocationForPersonService(
-  @Autowired private val getPersonService: GetPersonService,
-  @Autowired private val prisonerBaseLocationProvider: PrisonerBaseLocationProvider,
+  @Autowired private val prisonerOffenderSearchGateway: PrisonerOffenderSearchGateway,
 ) {
-  fun execute(
-    hmppsId: String,
-  ): Result<PrisonerBaseLocation> = getPersonService.getNomisNumber(hmppsId).mapCatching {
-    prisonerBaseLocationProvider.getBaseLocation(it).getOrThrow()
+  fun getPrisonOffender(nomisNumber: NomisNumber): POSPrisoner {
+    return prisonerOffenderSearchGateway.getPrisonOffender(nomisNumber)
   }
 }

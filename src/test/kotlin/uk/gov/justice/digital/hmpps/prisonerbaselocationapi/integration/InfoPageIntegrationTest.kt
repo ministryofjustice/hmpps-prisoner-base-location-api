@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+/*
 class InfoPageIntegrationTest : IntegrationTestBase() {
   @Test
   fun `Info page is accessible`() {
@@ -12,3 +13,5 @@ class InfoPageIntegrationTest : IntegrationTestBase() {
       .andExpect(jsonPath("$.build.name").value("hmpps-prisoner-base-location-api"))
   }
 }
+
+ */

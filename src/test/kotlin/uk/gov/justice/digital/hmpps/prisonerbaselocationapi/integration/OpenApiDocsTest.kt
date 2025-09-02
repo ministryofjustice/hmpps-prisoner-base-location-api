@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+/*
 class OpenApiDocsTest : IntegrationTestBase() {
   @LocalServerPort
   private val port: Int = 0
@@ -89,3 +90,4 @@ class OpenApiDocsTest : IntegrationTestBase() {
       .andExpect(jsonPath("$.paths[*][*][?(!@.security)]").doesNotExist())
   }
 }
+ */

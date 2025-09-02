@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration
 
+/*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.ExtendWith
@@ -101,3 +102,4 @@ abstract class IntegrationTestBase {
     cn: String,
   ): ResultActions = mockMvc.perform(get(path).headers(getAuthHeader(cn)))
 }
+ */

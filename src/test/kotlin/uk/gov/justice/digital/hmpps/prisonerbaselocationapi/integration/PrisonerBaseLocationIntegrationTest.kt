@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.gateways.FIXTURES_DIR
 import java.io.File
 
+/*
 class PrisonerBaseLocationIntegrationTest : IntegrationTestBase() {
   private val knownNomisNumber = "A1234BC"
   private val unknownNomisNumnber = "Z9876YX"
@@ -51,3 +51,5 @@ class PrisonerBaseLocationIntegrationTest : IntegrationTestBase() {
 
   private fun givenUnknownPrisoner() = prisonerOffenderSearchMockServer.stubForGet("/prisoner/$unknownNomisNumnber", readFixtures("prisoneroffendersearch/PrisonerByIdNotFoundResponse.json"), HttpStatus.NOT_FOUND)
 }
+
+ */

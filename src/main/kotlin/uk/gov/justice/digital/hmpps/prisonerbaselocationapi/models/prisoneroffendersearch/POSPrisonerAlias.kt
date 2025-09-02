@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch
 
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Alias
 import java.time.LocalDate
 
 data class POSPrisonerAlias(
@@ -10,13 +9,4 @@ data class POSPrisonerAlias(
   var dateOfBirth: LocalDate? = null,
   val gender: String? = null,
   val ethnicity: String? = null,
-) {
-  fun toAlias(): Alias = Alias(
-    firstName = this.firstName,
-    lastName = this.lastName,
-    middleName = this.middleNames,
-    dateOfBirth = this.dateOfBirth,
-    gender = this.gender,
-    ethnicity = this.ethnicity,
-  )
-}
+)

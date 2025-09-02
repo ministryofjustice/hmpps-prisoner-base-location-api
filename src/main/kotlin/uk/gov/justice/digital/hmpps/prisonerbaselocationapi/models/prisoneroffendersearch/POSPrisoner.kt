@@ -1,16 +1,12 @@
 package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch
 
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Identifiers
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Language
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.Person
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PersonInPrison
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PersonalCareNeed
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PhysicalCharacteristics
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.LastMovementType
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PrisonerBaseLocation
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
-import kotlin.collections.map
 
 data class POSPrisoner(
   val prisonerNumber: String? = null,
@@ -53,62 +49,24 @@ data class POSPrisoner(
   val languages: List<POSLanguage>? = null,
   val identifiers: List<POSIdentifier>? = null,
 ) {
-  fun toPerson(): Person = Person(
-    firstName = this.firstName,
-    lastName = this.lastName,
-    middleName = this.middleNames,
-    dateOfBirth = this.dateOfBirth,
-    gender = this.gender,
-    ethnicity = this.ethnicity,
-    aliases = this.aliases.map { it.toAlias() },
-    identifiers =
-    Identifiers(
-      nomisNumber = this.prisonerNumber,
-      croNumber = this.croNumber,
-    ),
-    pncId = this.pncNumber,
-  )
+  fun toBaseLocation(): PrisonerBaseLocation {
+    val inPrison = this.inOutStatus == "IN"
 
-  fun toPersonInPrison(): PersonInPrison = PersonInPrison(
-    firstName = this.firstName,
-    lastName = this.lastName,
-    middleName = this.middleNames,
-    dateOfBirth = this.dateOfBirth,
-    gender = this.gender,
-    ethnicity = this.ethnicity,
-    aliases = this.aliases.map { it.toAlias() },
-    identifiers =
-    Identifiers(
-      nomisNumber = this.prisonerNumber,
-      croNumber = this.croNumber,
-    ),
-    pncId = this.pncNumber,
-    cellLocation = this.cellLocation,
-    prisonId = this.prisonId,
-    prisonName = this.prisonName,
-    category = this.category,
-    csra = this.csra,
-    receptionDate = this.receptionDate,
-    status = this.status,
-    youthOffender = this.youthOffender,
-  )
-
-  fun toPhysicalCharacteristics(): PhysicalCharacteristics = PhysicalCharacteristics(
-    heightCentimetres = this.heightCentimetres,
-    weightKilograms = this.weightKilograms,
-    hairColour = this.hairColour,
-    rightEyeColour = this.rightEyeColour,
-    leftEyeColour = this.leftEyeColour,
-    facialHair = this.facialHair,
-    shapeOfFace = this.shapeOfFace,
-    build = this.build,
-    shoeSize = this.shoeSize,
-    tattoos = this.tattoos?.map { it.toBodyMark() },
-    scars = this.scars?.map { it.toBodyMark() },
-    marks = this.marks?.map { it.toBodyMark() },
-  )
-
-  fun toPersonalCareNeeds(): List<PersonalCareNeed>? = this.personalCareNeeds?.map { it.toPersonalCareNeed() }
-
-  fun toLanguages(): List<Language>? = this.languages?.map { it.toLanguage() }
+    return PrisonerBaseLocation(
+      inPrison = inPrison,
+      prisonId = if (inPrison) this.prisonId else null,
+      lastPrisonId = this.lastPrisonId,
+      lastMovementType = this.lastMovementTypeCode?.let { lastMovementTypeCode ->
+        when (lastMovementTypeCode) {
+          "ADM" -> LastMovementType.ADMISSION
+          "REL" -> LastMovementType.RELEASE
+          "TRN" -> LastMovementType.TRANSFERS
+          "CRT" -> LastMovementType.COURT
+          "TAP" -> LastMovementType.TEMPORARY_ABSENCE
+          else -> null
+        }
+      },
+      receptionDate = this.receptionDate?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) },
+    )
+  }
 }

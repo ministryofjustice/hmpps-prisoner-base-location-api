@@ -31,6 +31,17 @@ class HmppsBaseLocationApiExceptionHandler {
       ),
     ).also { log.info("Validation exception: {}", e.message) }
 
+  @ExceptionHandler(WebClientResponseException.NotFound::class)
+  fun handle(e: WebClientResponseException.NotFound): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(404)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        developerMessage = "404 Not Found",
+        userMessage = e.message,
+      ),
+    ).also { log.info("NotFound exception: {}", e.message) }
+
   @ExceptionHandler(EntityNotFoundException::class)
   fun handle(e: EntityNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
     .status(NOT_FOUND)

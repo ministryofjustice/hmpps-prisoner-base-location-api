@@ -39,7 +39,7 @@ class HmppsAuthGateway(
       throw HmppsAuthFailedException("Connection to ${exception.uri.authority} failed for $service.")
     } catch (exception: WebClientResponseException.ServiceUnavailable) {
       throw HmppsAuthFailedException("${exception.request?.uri?.authority} is unavailable for $service.")
-    } catch (exception: WebClientResponseException.Unauthorized) {
+    } catch (_: WebClientResponseException.Unauthorized) {
       throw HmppsAuthFailedException("Invalid credentials used for $service.")
     }
   }

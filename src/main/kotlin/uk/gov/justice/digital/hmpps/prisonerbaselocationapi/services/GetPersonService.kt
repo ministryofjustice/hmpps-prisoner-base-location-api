@@ -30,22 +30,15 @@ class GetPersonService(
   /**
    * Returns a Nomis number from a HMPPS ID
    */
-  fun getNomisNumber(hmppsId: String): Result<NomisNumber> = when (identifyHmppsId(hmppsId)) {
-    IdentifierType.NOMS -> {
-      Result.success(NomisNumber(hmppsId))
+  fun getNomisNumber(hmppsId: String): NomisNumber = when (identifyHmppsId(hmppsId)) {
+    IdentifierType.UNKNOWN -> {
+      throw ValidationException("hmppsId is invalid")
     }
     IdentifierType.CRN -> {
-      deliusGateway.getPerson(hmppsId).mapCatching { person ->
-        val nomisNumber = person.identifiers.nomisNumber
-
-        if (nomisNumber == null) {
-          throw EntityNotFoundException("NOMIS number not found")
-        } else {
-          NomisNumber(nomisNumber)
-        }
-      }
+      deliusGateway.getNomisNumber(hmppsId) ?: throw EntityNotFoundException("NOMIS number not found")
     }
-    IdentifierType.UNKNOWN ->
-      Result.failure(ValidationException("hmppsId is invalid"))
+    IdentifierType.NOMS -> {
+      NomisNumber(hmppsId)
+    }
   }
 }
