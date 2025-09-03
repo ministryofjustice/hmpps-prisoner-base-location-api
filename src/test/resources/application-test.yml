@@ -5,5 +5,16 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
+# Use ports <4010, reuse if required
+services:
+  hmpps-auth:
+    base-url: http://localhost:8090
+    username: client
+    password: client-secret
+  prisoner-offender-search:
+    base-url: http://localhost:4000
+  ndelius:
+    base-url: http://localhost:4003
+
 hmpps-auth:
   url: "http://localhost:8090/auth"
