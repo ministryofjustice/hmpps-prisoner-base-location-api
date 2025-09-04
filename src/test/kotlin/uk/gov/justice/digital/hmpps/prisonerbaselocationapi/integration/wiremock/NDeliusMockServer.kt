@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.springframework.http.HttpStatus
 
 class NDeliusApiExtension :
   BeforeAllCallback,
@@ -60,6 +61,15 @@ class NDeliusMockServer : WireMockServer(4003) {
                 }
               """.trimIndent(),
             ),
+        ),
+    )
+  }
+  fun stubUpstreamError() {
+    stubFor(
+      get(urlEqualTo("/search/probation-cases"))
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.UNAUTHORIZED.value()),
         ),
     )
   }

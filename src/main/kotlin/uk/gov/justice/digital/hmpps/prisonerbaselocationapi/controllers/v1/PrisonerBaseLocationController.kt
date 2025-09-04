@@ -20,7 +20,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
 @RequestMapping(value = ["v1/persons"])
-@Tags(value = [Tag(name = "Persons"), Tag(name = "Base Location Service")])
+@Tags(value = [Tag(name = "Base Location Service")])
 @PreAuthorize("hasRole('ROLE_VIEW_PRISONER_LOCATION')")
 class PrisonerBaseLocationController(
   private val getPersonService: GetPersonService,

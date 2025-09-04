@@ -56,12 +56,15 @@ management:
       cache:
         time-to-live: 2000ms
 
+hmpps-auth:
+  url: "TestURL"
+
 services:
   prisoner-offender-search:
     base-url: "TestURL"
   ndelius:
     base-url: "TestURL"
   hmpps-auth:
-    base-url: "OtherTestURL"
+    base-url: "TestURL"
     username: hmpps-integration-api-client
     password: clientsecret

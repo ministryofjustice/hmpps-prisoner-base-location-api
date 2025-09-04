@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.springframework.http.HttpStatus
 
 class PrisonOffenderSearchApiExtension :
   BeforeAllCallback,
@@ -40,6 +41,15 @@ class PrisonOffenderSearchMockServer : WireMockServer(4000) {
                 }
               """.trimIndent(),
             ),
+        ),
+    )
+  }
+  fun stubUpstreamError() {
+    stubFor(
+      get(urlPathMatching("/prisoner/([A-Za-z0-9])*"))
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.GATEWAY_TIMEOUT.value()),
         ),
     )
   }

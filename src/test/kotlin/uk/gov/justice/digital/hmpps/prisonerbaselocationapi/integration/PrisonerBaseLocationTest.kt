@@ -17,10 +17,10 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
     val validNomisNumber = "A1234AA"
 
     @Nested
-    @DisplayName("GIVEN we receive a valid nomis number")
+    @DisplayName("Valid hmppsId (nomis number)")
     inner class GivenAValidNomisNumber {
       @Test
-      fun `WHEN we find a prisoner THEN we return their base location`() {
+      fun `prisoner info found - return their base location`() {
         hmppsAuth.stubGrantToken()
         prisonOffenderSearch.stubGetPrisonOffender()
 
@@ -33,7 +33,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
       }
 
       @Test
-      fun `WHEN we do not find a prisoner THEN we return 404 not found`() {
+      fun `prisoner info not found - return 404 not found`() {
         hmppsAuth.stubGrantToken()
 
         webTestClient
@@ -43,13 +43,26 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
           .exchange()
           .expectStatus().isNotFound
       }
+
+      @Test
+      fun `prison offender search api error - return 500 internal server error`() {
+        hmppsAuth.stubGrantToken()
+        prisonOffenderSearch.stubUpstreamError()
+
+        webTestClient
+          .get()
+          .uri("v1/persons/$validNomisNumber/prisoner-base-location")
+          .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+          .exchange()
+          .expectStatus().is5xxServerError
+      }
     }
 
     @Nested
-    @DisplayName("GIVEN we receive a valid crn")
+    @DisplayName("Valid hmppsId (crn)")
     inner class GivenAValidCrn {
       @Test
-      fun `WHEN we find a prisoner THEN we return their base location`() {
+      fun `prisoner info found - return their base location`() {
         hmppsAuth.stubGrantToken()
         nDelius.stubPrisonerWithNomsNumber()
         prisonOffenderSearch.stubGetPrisonOffender()
@@ -63,7 +76,19 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
       }
 
       @Test
-      fun `WHEN the prisoner does not have a nomis number THEN we return 404 not found`() {
+      fun `prisoner info not found in nDelius - return 404 not found`() {
+        hmppsAuth.stubGrantToken()
+
+        webTestClient
+          .get()
+          .uri("v1/persons/$validCrn/prisoner-base-location")
+          .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+          .exchange()
+          .expectStatus().isNotFound
+      }
+
+      @Test
+      fun `prisoner info found in nDelius, but no nomis number - return 404 not found`() {
         hmppsAuth.stubGrantToken()
         nDelius.stubPrisonerWithoutNomsNumber()
 
@@ -76,19 +101,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
       }
 
       @Test
-      fun `WHEN we do not find their details in nDelius THEN we return 404 not found`() {
-        hmppsAuth.stubGrantToken()
-
-        webTestClient
-          .get()
-          .uri("v1/persons/$validCrn/prisoner-base-location")
-          .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
-          .exchange()
-          .expectStatus().isNotFound
-      }
-
-      @Test
-      fun `WHEN we do not find their details in prisoner search THEN we 404 return not found`() {
+      fun `prisoner info found in nDelius, but not offender search - return 404 not found`() {
         hmppsAuth.stubGrantToken()
         nDelius.stubPrisonerWithNomsNumber()
 
@@ -99,10 +112,23 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
           .exchange()
           .expectStatus().isNotFound
       }
+
+      @Test
+      fun `nDelius api error - return 500 internal server error`() {
+        hmppsAuth.stubGrantToken()
+        nDelius.stubUpstreamError()
+
+        webTestClient
+          .get()
+          .uri("v1/persons/$validCrn/prisoner-base-location")
+          .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+          .exchange()
+          .expectStatus().is5xxServerError
+      }
     }
 
     @Test
-    fun `WHEN hmppsId is invalid THEN return a 400 bad request`() {
+    fun `Invalid hmppsId - return 400 bad request`() {
       val invalidHmppsId = "XXX"
 
       webTestClient
@@ -114,7 +140,19 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `WHEN user does not have correct role THEN return a 403 forbidden`() {
+    fun `No auth token - return 401 unauthorized`() {
+      hmppsAuth.stubGrantToken()
+      prisonOffenderSearch.stubGetPrisonOffender()
+
+      webTestClient
+        .get()
+        .uri("v1/persons/$validNomisNumber/prisoner-base-location")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Auth token does not contain correct role - return 403 forbidden`() {
       hmppsAuth.stubGrantToken()
       prisonOffenderSearch.stubGetPrisonOffender()
 
