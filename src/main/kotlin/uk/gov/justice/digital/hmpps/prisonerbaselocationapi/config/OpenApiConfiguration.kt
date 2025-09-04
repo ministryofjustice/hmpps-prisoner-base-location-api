@@ -15,9 +15,6 @@ import org.springframework.context.annotation.Configuration
 class OpenApiConfiguration(buildProperties: BuildProperties) {
   private val version: String = buildProperties.version
 
-  // config inspired by:
-  // https://github.com/ministryofjustice/hmpps-prisoner-search/blob/main/hmpps-prisoner-search/src/main/kotlin/uk/gov/justice/digital/hmpps/prisonersearch/search/config/OpenApiConfiguration.kt
-
   @Bean
   fun customOpenAPI(): OpenAPI = OpenAPI()
     .servers(

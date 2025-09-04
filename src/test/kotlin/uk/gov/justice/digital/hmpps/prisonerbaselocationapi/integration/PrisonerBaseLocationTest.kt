@@ -163,5 +163,17 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isForbidden
     }
+
+    @Test
+    fun `Hmpps Auth errors - return 502 bad gateway`() {
+      hmppsAuth.stubServiceUnavailable()
+
+      webTestClient
+        .get()
+        .uri("v1/persons/$validNomisNumber/prisoner-base-location")
+        .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+        .exchange()
+        .expectStatus().is5xxServerError
+    }
   }
 }

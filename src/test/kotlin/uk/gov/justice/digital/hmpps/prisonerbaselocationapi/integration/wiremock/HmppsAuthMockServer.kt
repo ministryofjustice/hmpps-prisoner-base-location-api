@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -44,6 +45,16 @@ class HmppsAuthMockServer : WireMockServer(8090) {
                 }
               """.trimIndent(),
             ),
+        ),
+    )
+  }
+
+  fun stubServiceUnavailable() {
+    stubFor(
+      post(urlPathEqualTo("/auth/oauth/token"))
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.SERVICE_UNAVAILABLE.value())
         ),
     )
   }
