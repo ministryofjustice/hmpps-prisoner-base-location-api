@@ -26,6 +26,7 @@ class NDeliusGateway(
 
   fun getNomisNumber(crnNumber: String): NomisNumber? {
     val headers = authenticationHeader() + mapOf("crn" to crnNumber)
+
     val offender = webClient
       .get()
       .uri("/search/probation-cases")

@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -23,27 +23,15 @@ class HmppsAuthApiExtension :
     val hmppsAuth = HmppsAuthMockServer()
   }
 
-  override fun beforeAll(context: ExtensionContext) {
-    hmppsAuth.start()
-  }
-
-  override fun beforeEach(context: ExtensionContext) {
-    hmppsAuth.resetRequests()
-  }
-
-  override fun afterAll(context: ExtensionContext) {
-    hmppsAuth.stop()
-  }
+  override fun beforeAll(context: ExtensionContext):Unit = hmppsAuth.start()
+  override fun beforeEach(context: ExtensionContext):Unit = hmppsAuth.resetAll()
+  override fun afterAll(context: ExtensionContext):Unit = hmppsAuth.stop()
 }
 
-class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
-  companion object {
-    private const val WIREMOCK_PORT = 8090
-  }
-
+class HmppsAuthMockServer : WireMockServer(8090) {
   fun stubGrantToken() {
     stubFor(
-      post(urlEqualTo("/auth/oauth/token"))
+      post(urlPathEqualTo("/auth/oauth/token"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
