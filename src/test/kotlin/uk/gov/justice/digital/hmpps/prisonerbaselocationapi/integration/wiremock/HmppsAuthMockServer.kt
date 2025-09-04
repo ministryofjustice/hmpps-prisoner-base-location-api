@@ -54,7 +54,7 @@ class HmppsAuthMockServer : WireMockServer(8090) {
       post(urlPathEqualTo("/auth/oauth/token"))
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.SERVICE_UNAVAILABLE.value())
+            .withStatus(HttpStatus.SERVICE_UNAVAILABLE.value()),
         ),
     )
   }
