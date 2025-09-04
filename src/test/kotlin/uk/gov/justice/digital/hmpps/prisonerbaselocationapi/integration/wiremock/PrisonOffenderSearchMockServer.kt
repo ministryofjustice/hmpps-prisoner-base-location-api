@@ -20,9 +20,9 @@ class PrisonOffenderSearchApiExtension :
     val prisonOffenderSearch = PrisonOffenderSearchMockServer()
   }
 
-  override fun beforeAll(context: ExtensionContext):Unit = prisonOffenderSearch.start()
-  override fun beforeEach(context: ExtensionContext):Unit = prisonOffenderSearch.resetAll()
-  override fun afterAll(context: ExtensionContext):Unit = prisonOffenderSearch.stop()
+  override fun beforeAll(context: ExtensionContext): Unit = prisonOffenderSearch.start()
+  override fun beforeEach(context: ExtensionContext): Unit = prisonOffenderSearch.resetAll()
+  override fun afterAll(context: ExtensionContext): Unit = prisonOffenderSearch.stop()
 }
 
 class PrisonOffenderSearchMockServer : WireMockServer(4000) {

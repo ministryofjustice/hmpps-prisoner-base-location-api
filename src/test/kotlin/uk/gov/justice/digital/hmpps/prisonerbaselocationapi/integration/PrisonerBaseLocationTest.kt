@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.NDeliusApiExtension.Companion.nDelius
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.PrisonOffenderSearchApiExtension.Companion.prisonOffenderSearch
 
-class PrisonerBaseLocationTest: IntegrationTestBase() {
+class PrisonerBaseLocationTest : IntegrationTestBase() {
 
   @Nested
   @DisplayName("GET /v1/persons/{hmppsId}/prisoner-base-location")
@@ -26,18 +26,19 @@ class PrisonerBaseLocationTest: IntegrationTestBase() {
 
         webTestClient
           .get()
-          .uri("v1/persons/${validNomisNumber}/prisoner-base-location")
+          .uri("v1/persons/$validNomisNumber/prisoner-base-location")
           .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
           .exchange()
           .expectStatus().isOk
       }
+
       @Test
       fun `WHEN we do not find a prisoner THEN we return 404 not found`() {
         hmppsAuth.stubGrantToken()
 
         webTestClient
           .get()
-          .uri("v1/persons/${validNomisNumber}/prisoner-base-location")
+          .uri("v1/persons/$validNomisNumber/prisoner-base-location")
           .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
           .exchange()
           .expectStatus().isNotFound
@@ -55,11 +56,12 @@ class PrisonerBaseLocationTest: IntegrationTestBase() {
 
         webTestClient
           .get()
-          .uri("v1/persons/${validCrn}/prisoner-base-location")
+          .uri("v1/persons/$validCrn/prisoner-base-location")
           .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
           .exchange()
           .expectStatus().isOk
       }
+
       @Test
       fun `WHEN the prisoner does not have a nomis number THEN we return 404 not found`() {
         hmppsAuth.stubGrantToken()
@@ -67,22 +69,24 @@ class PrisonerBaseLocationTest: IntegrationTestBase() {
 
         webTestClient
           .get()
-          .uri("v1/persons/${validCrn}/prisoner-base-location")
+          .uri("v1/persons/$validCrn/prisoner-base-location")
           .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
           .exchange()
           .expectStatus().isNotFound
       }
+
       @Test
       fun `WHEN we do not find their details in nDelius THEN we return 404 not found`() {
         hmppsAuth.stubGrantToken()
 
         webTestClient
           .get()
-          .uri("v1/persons/${validCrn}/prisoner-base-location")
+          .uri("v1/persons/$validCrn/prisoner-base-location")
           .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
           .exchange()
           .expectStatus().isNotFound
       }
+
       @Test
       fun `WHEN we do not find their details in prisoner search THEN we 404 return not found`() {
         hmppsAuth.stubGrantToken()
@@ -90,7 +94,7 @@ class PrisonerBaseLocationTest: IntegrationTestBase() {
 
         webTestClient
           .get()
-          .uri("v1/persons/${validCrn}/prisoner-base-location")
+          .uri("v1/persons/$validCrn/prisoner-base-location")
           .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
           .exchange()
           .expectStatus().isNotFound
@@ -103,12 +107,11 @@ class PrisonerBaseLocationTest: IntegrationTestBase() {
 
       webTestClient
         .get()
-        .uri("v1/persons/${invalidHmppsId}/prisoner-base-location")
+        .uri("v1/persons/$invalidHmppsId/prisoner-base-location")
         .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
         .exchange()
         .expectStatus().isBadRequest
     }
-
 
     @Test
     fun `WHEN user does not have correct role THEN return a 403 forbidden`() {
@@ -117,11 +120,10 @@ class PrisonerBaseLocationTest: IntegrationTestBase() {
 
       webTestClient
         .get()
-        .uri("v1/persons/${validNomisNumber}/prisoner-base-location")
+        .uri("v1/persons/$validNomisNumber/prisoner-base-location")
         .headers(setAuthorisation(roles = listOf("SOME_OTHER_ROLE")))
         .exchange()
         .expectStatus().isForbidden
     }
   }
-
 }

@@ -23,9 +23,9 @@ class HmppsAuthApiExtension :
     val hmppsAuth = HmppsAuthMockServer()
   }
 
-  override fun beforeAll(context: ExtensionContext):Unit = hmppsAuth.start()
-  override fun beforeEach(context: ExtensionContext):Unit = hmppsAuth.resetAll()
-  override fun afterAll(context: ExtensionContext):Unit = hmppsAuth.stop()
+  override fun beforeAll(context: ExtensionContext): Unit = hmppsAuth.start()
+  override fun beforeEach(context: ExtensionContext): Unit = hmppsAuth.resetAll()
+  override fun afterAll(context: ExtensionContext): Unit = hmppsAuth.stop()
 }
 
 class HmppsAuthMockServer : WireMockServer(8090) {

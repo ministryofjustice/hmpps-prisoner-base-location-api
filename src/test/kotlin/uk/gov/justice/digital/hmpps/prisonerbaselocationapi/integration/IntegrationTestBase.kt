@@ -17,7 +17,7 @@ import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 @ExtendWith(
   HmppsAuthApiExtension::class,
   NDeliusApiExtension::class,
-  PrisonOffenderSearchApiExtension::class
+  PrisonOffenderSearchApiExtension::class,
 )
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

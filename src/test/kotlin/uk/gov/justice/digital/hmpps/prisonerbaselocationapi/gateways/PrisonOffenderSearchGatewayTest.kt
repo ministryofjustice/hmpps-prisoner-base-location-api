@@ -40,6 +40,10 @@ class PrisonOffenderSearchGatewayTest(
     configureFor("localhost", server.port())
   }
 
+  afterTest {
+    server.stop()
+  }
+
   fun respondWith(status: Int, body: String = "") {
     stubFor(
       get(urlEqualTo("/prisoner/${nomsNumber.nomisNumber}"))
