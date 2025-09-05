@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.Integrat
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.PrisonOffenderSearchApiExtension.Companion.prisonOffenderSearch
 
-class PrisonApiServiceTest : IntegrationTestBase() {
+class PrisonOffenderSearchServiceTest : IntegrationTestBase() {
   @Test
   fun `should supply authentication token`() {
     hmppsAuth.stubGrantToken()
