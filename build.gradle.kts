@@ -8,17 +8,15 @@ configurations {
 }
 
 dependencies {
-  // Spring Boot
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.6.0-beta4")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.5.0") {
+    implementation("org.apache.commons:commons-lang3:3.18.0")
+  }
   implementation("org.springframework.boot:spring-boot-starter-webflux")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 
-  // OpenAPI
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.12")
-
-  // Test
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.6.0-beta4")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.5.0")
   testImplementation("org.wiremock:wiremock-standalone:3.13.1")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.32") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.31") {
     exclude(group = "io.swagger.core.v3")
   }
 }
