@@ -96,6 +96,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
     @Test
     fun `Hmpps Auth errors - return 502 bad gateway`() {
       hmppsAuth.stubServiceUnavailable()
+      prisonOffenderSearch.stubGetPrisonOffender()
 
       webTestClient
         .get()

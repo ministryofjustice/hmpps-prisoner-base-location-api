@@ -1,2 +1,5 @@
-hmpps-auth:
-  url: "http://localhost:8090/auth"
+api:
+  hmpps-auth:
+    base-url: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
+  prisoner-offender-search:
+    base-url: "https://prisoner-search-dev.prison.service.justice.gov.uk"

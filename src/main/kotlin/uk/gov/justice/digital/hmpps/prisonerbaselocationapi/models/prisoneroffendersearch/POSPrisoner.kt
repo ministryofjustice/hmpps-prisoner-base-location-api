@@ -10,7 +10,6 @@ import kotlin.let
 data class POSPrisoner(
   val firstName: String,
   val lastName: String,
-  val youthOffender: Boolean,
   val inOutStatus: String? = null,
   val prisonId: String? = null,
   val lastPrisonId: String? = null,

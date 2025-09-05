@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.PrisonerBaseLocation
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.services.GetPrisonOffenderService
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.services.PrisonOffenderSearchService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
@@ -22,7 +22,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 @Tags(value = [Tag(name = "Base Location Service")])
 @PreAuthorize("hasRole('ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO')")
 class PrisonerBaseLocationController(
-  private val getPrisonOffenderService: GetPrisonOffenderService,
+  private val prisonOffenderSearchService: PrisonOffenderSearchService,
 ) {
   @GetMapping("{nomisNumber:^[A-Z]\\d{4}[A-Z]{2}$}/prisoner-base-location")
   @Operation(
@@ -60,7 +60,7 @@ class PrisonerBaseLocationController(
   fun getPrisonerBaseLocation(
     @Parameter(description = "A NOMIS number", example = "A1234AA") @PathVariable nomisNumber: String,
   ): PrisonerBaseLocation {
-    val offender = getPrisonOffenderService.getPrisonOffender(nomisNumber)
+    val offender = prisonOffenderSearchService.getPrisonOffender(nomisNumber)
     val location = offender.toBaseLocation()
 
     return location
