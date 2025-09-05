@@ -29,7 +29,7 @@ class ApiMock(
 ) {
   fun performAuthorised(path: String): MvcResult = mockMvc.perform(
     get(path).with(
-      jwt().authorities(SimpleGrantedAuthority("ROLE_VIEW_PRISONER_LOCATION")),
+      jwt().authorities(SimpleGrantedAuthority("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")),
     ),
   ).andReturn()
 }

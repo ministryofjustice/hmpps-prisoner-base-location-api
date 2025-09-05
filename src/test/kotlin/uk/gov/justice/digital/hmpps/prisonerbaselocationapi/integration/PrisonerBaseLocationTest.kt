@@ -25,7 +25,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
         webTestClient
           .get()
           .uri("v1/persons/$validNomisNumber/prisoner-base-location")
-          .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+          .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")))
           .exchange()
           .expectStatus().isOk
       }
@@ -37,7 +37,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
         webTestClient
           .get()
           .uri("v1/persons/$validNomisNumber/prisoner-base-location")
-          .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+          .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")))
           .exchange()
           .expectStatus().isNotFound
       }
@@ -50,7 +50,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
         webTestClient
           .get()
           .uri("v1/persons/$validNomisNumber/prisoner-base-location")
-          .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+          .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")))
           .exchange()
           .expectStatus().is5xxServerError
       }
@@ -88,7 +88,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
       webTestClient
         .get()
         .uri("v1/persons/$invalidHmppsId/prisoner-base-location")
-        .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+        .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")))
         .exchange()
         .expectStatus().isNotFound
     }
@@ -100,7 +100,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
       webTestClient
         .get()
         .uri("v1/persons/$validNomisNumber/prisoner-base-location")
-        .headers(setAuthorisation(roles = listOf("ROLE_VIEW_PRISONER_LOCATION")))
+        .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")))
         .exchange()
         .expectStatus().is5xxServerError
     }

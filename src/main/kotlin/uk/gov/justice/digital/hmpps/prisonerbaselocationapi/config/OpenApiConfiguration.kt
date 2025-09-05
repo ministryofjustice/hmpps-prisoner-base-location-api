@@ -35,7 +35,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
     .components(
       Components().addSecuritySchemes(
         "view-prisoner-location-role",
-        SecurityScheme().addBearerJwtRequirement("ROLE_VIEW_PRISONER_LOCATION"),
+        SecurityScheme().addBearerJwtRequirement("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO"),
       ),
     )
     .addSecurityItem(SecurityRequirement().addList("view-prisoner-location-role", listOf("read")))

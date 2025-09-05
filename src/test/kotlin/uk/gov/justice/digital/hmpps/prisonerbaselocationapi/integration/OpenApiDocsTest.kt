@@ -74,7 +74,7 @@ class OpenApiDocsTest : IntegrationTestBase() {
   }
 
   @ParameterizedTest
-  @CsvSource(value = ["view-prisoner-location-role, ROLE_VIEW_PRISONER_LOCATION"])
+  @CsvSource(value = ["view-prisoner-location-role, ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO"])
   fun `the security scheme is setup for bearer tokens`(key: String, role: String) {
     webTestClient.get()
       .uri("/v3/api-docs")
