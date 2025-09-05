@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.NomisNumber
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch.POSPrisoner
 
 @Component
@@ -24,9 +23,9 @@ class PrisonOffenderSearchGateway(
     )
   }
 
-  fun getPrisonOffender(nomsNumber: NomisNumber): POSPrisoner = webClient
+  fun getPrisonOffender(nomsNumber: String): POSPrisoner = webClient
     .get()
-    .uri("/prisoner/${nomsNumber.nomisNumber}")
+    .uri("/prisoner/$nomsNumber")
     .headers({ header -> authenticationHeader().forEach { requestHeader -> header.set(requestHeader.key, requestHeader.value) } })
     .retrieve()
     .bodyToMono(POSPrisoner::class.java)

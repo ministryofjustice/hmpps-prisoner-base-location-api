@@ -18,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.NomisNumber
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch.POSPrisoner
 
 @ActiveProfiles("test")
@@ -31,7 +30,7 @@ class PrisonOffenderSearchGatewayTest(
   @Autowired private val prisonOffenderSearchGateway: PrisonOffenderSearchGateway,
 ) : DescribeSpec({
   val server = WireMockServer(wireMockConfig().port(4000))
-  val nomsNumber = NomisNumber("123456")
+  val nomsNumber = "A1234AA"
 
   whenever(hmppsAuthGateway.getClientToken("Prisoner Offender Search")).thenReturn("mock-bearer-token")
 
@@ -46,7 +45,7 @@ class PrisonOffenderSearchGatewayTest(
 
   fun respondWith(status: Int, body: String = "") {
     stubFor(
-      get(urlEqualTo("/prisoner/${nomsNumber.nomisNumber}"))
+      get(urlEqualTo("/prisoner/$nomsNumber"))
         .willReturn(
           aResponse()
             .withStatus(status)
@@ -72,7 +71,7 @@ class PrisonOffenderSearchGatewayTest(
       }
     }
     it("should not catch any decoding exceptions") {
-      respondWith(200, """{"firstName":"John"}""")
+      respondWith(200, "not valid json")
 
       shouldThrow<DecodingException> {
         prisonOffenderSearchGateway.getPrisonOffender(nomsNumber)

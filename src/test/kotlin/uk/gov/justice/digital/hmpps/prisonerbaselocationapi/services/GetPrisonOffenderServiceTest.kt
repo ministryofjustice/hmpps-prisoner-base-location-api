@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.gateways.PrisonOffenderSearchGateway
-import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.hmpps.NomisNumber
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.models.prisoneroffendersearch.POSPrisoner
 
 @ContextConfiguration(
@@ -27,7 +26,7 @@ class GetPrisonOffenderServiceTest(
     }
 
     describe("getPrisonOffender") {
-      val nomisNumber = NomisNumber("A1234BC")
+      val nomisNumber = "A1234AA"
       val prisoner = POSPrisoner(firstName = "John", lastName = "Doe", youthOffender = false)
 
       it("should return a offender") {
