@@ -58,7 +58,7 @@ class PrisonerBaseLocationController(
     ],
   )
   fun getPrisonerBaseLocation(
-    @Parameter(description = "A HMPPS id", example = "A123123") @PathVariable nomisNumber: String,
+    @Parameter(description = "A NOMIS number", example = "A1234AA") @PathVariable nomisNumber: String,
   ): PrisonerBaseLocation {
     val offender = getPrisonOffenderService.getPrisonOffender(nomisNumber)
     val location = offender.toBaseLocation()
