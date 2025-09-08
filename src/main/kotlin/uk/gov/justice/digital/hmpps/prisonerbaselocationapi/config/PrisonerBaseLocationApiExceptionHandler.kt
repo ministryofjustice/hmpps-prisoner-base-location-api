@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.servlet.resource.NoResourceFoundException
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exceptions.EntityNotFoundException
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestControllerAdvice
@@ -47,6 +49,28 @@ class PrisonerBaseLocationApiExceptionHandler {
         developerMessage = e.message,
       ),
     ).also { log.debug("Forbidden (403) returned: {}", e.message) }
+
+  @ExceptionHandler(EntityNotFoundException::class)
+  fun handle(e: EntityNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        developerMessage = "404 Not found error: ${e.message}",
+        userMessage = e.message,
+      ),
+    ).also { log.info("Not found (404) returned with message {}", e.message) }
+
+  @ExceptionHandler(WebClientResponseException.NotFound::class)
+  fun handle(e: WebClientResponseException.NotFound): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        developerMessage = "404 Not Found",
+        userMessage = e.message,
+      ),
+    ).also { log.info("NotFound exception: {}", e.message) }
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> = ResponseEntity
