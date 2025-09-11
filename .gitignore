@@ -72,8 +72,5 @@ sonar-project.properties
 #Helm
 **/Chart.lock
 
-#Env file
-.env
-
 #Everything else:
 .DS_Store
