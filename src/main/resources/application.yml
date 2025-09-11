@@ -20,16 +20,17 @@ spring:
           jwk-set-uri: ${api.hmpps-auth.base-url}/.well-known/jwks.json
 
       client:
-        registration:
-          hmpps-prisoner-base-location-api:
-            provider: hmpps-auth
-            client-id: ${client.id}
-            client-secret: ${client.secret}
-            authorization-grant-type: client_credentials
-            scope: read
         provider:
           hmpps-auth:
             token-uri: ${api.hmpps-auth.base-url}/oauth/token
+
+        registration:
+          hmpps-prisoner-base-location-api:
+            provider: hmpps-auth
+            client-id: ${api.client.id}
+            client-secret: ${api.client.secret}
+            authorization-grant-type: client_credentials
+            scope: read
 
 server:
   port: 8080
@@ -62,3 +63,9 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+api:
+  hmpps-auth:
+    base-url: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
+  prisoner-offender-search:
+    base-url: "https://prisoner-search-dev.prison.service.justice.gov.uk"
