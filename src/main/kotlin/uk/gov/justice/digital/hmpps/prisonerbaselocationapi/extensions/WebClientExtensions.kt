@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.extensions
 
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec
@@ -29,13 +28,15 @@ class WebClientExtension(
   /**
    * This Retry can only be used with idempotent request (e.g. `GET`)
    */
-  fun retryForIdempotentRequest(): Retry = apiClientConfig.run {
+  fun retryForIdempotentRequest(
+    statusCodeRetryExhausted: Int = apiClientConfig.statusCodeRetryExhausted,
+  ): Retry = apiClientConfig.run {
     Retry.backoff(maxRetryAttempts, minBackOffDuration)
       .filter { it.isSafeToRetry() }
       .onRetryExhaustedThrow { _, retrySignal ->
         throw ResponseException(
           message = "Failed to process after ${retrySignal.totalRetries()} retries",
-          statusCode = HttpStatus.SERVICE_UNAVAILABLE.value(),
+          statusCode = statusCodeRetryExhausted,
           cause = retrySignal.failure().cause,
         )
       }

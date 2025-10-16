@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.Builder
@@ -46,6 +47,7 @@ data class ApiClientConfig(
   val responseTimeout: Duration = DEFAULT_TIMEOUT,
   val maxRetryAttempts: Long = DEFAULT_MAX_RETRY_ATTEMPTS,
   val minBackOffDuration: Duration = DEFAULT_MIN_BACKOFF_DURATION,
+  val statusCodeRetryExhausted: Int = HttpStatus.SERVICE_UNAVAILABLE.value(),
   val clients: Map<String, ApiEndpointConfig> = emptyMap(),
 ) {
   fun getResponseTimeout(client: String) = clients[client]?.responseTimeout ?: responseTimeout
