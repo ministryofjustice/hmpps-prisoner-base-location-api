@@ -29,6 +29,8 @@ class WebClientExtension(
    * This Retry can only be used with idempotent request (e.g. `GET`)
    */
   fun retryForIdempotentRequest(
+    uri: String,
+    upstream: String,
     statusCodeRetryExhausted: Int = apiClientConfig.statusCodeRetryExhausted,
   ): Retry = apiClientConfig.run {
     Retry.backoff(maxRetryAttempts, minBackOffDuration)
@@ -37,6 +39,8 @@ class WebClientExtension(
         throw ResponseException(
           message = "Failed to process after ${retrySignal.totalRetries()} retries",
           statusCode = statusCodeRetryExhausted,
+          uri = uri,
+          upstream = upstream,
           cause = retrySignal.failure().cause,
         )
       }

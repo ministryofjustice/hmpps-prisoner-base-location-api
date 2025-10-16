@@ -44,12 +44,12 @@ class PrisonOffenderSearchMockServer : WireMockServer(4000) {
         ),
     )
   }
-  fun stubUpstreamError() {
+  fun stubUpstreamError(httpStatus: HttpStatus = HttpStatus.GATEWAY_TIMEOUT) {
     stubFor(
       get(urlPathMatching("/prisoner/([A-Za-z0-9])*"))
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.GATEWAY_TIMEOUT.value()),
+            .withStatus(httpStatus.value()),
         ),
     )
   }

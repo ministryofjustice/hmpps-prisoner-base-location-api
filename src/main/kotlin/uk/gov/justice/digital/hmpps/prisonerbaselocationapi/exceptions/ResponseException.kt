@@ -1,7 +1,9 @@
 package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exceptions
 
 data class ResponseException(
-  override var message: String?,
-  var statusCode: Int,
+  override val message: String?,
+  val statusCode: Int,
+  val uri: String? = null,
+  val upstream: String? = null,
   override val cause: Throwable? = null,
 ) : RuntimeException(message)

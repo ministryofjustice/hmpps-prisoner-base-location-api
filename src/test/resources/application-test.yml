@@ -5,8 +5,14 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
-api:
-  hmpps-auth:
-    base-url: "http://localhost:8090/auth"
-  prisoner-offender-search:
-    base-url: "http://localhost:4000"
+hmpps-auth.url: "http://localhost:8090/auth"
+
+api.client:
+  health-timeout: 10ms
+  response-timeout: 20ms
+  max-retry-attempts: 2
+  min-back-off-duration: 5ms
+  status-code-retry-exhausted: 599
+  clients:
+      prisoner-offender-search:
+        base-url: "http://localhost:4000"

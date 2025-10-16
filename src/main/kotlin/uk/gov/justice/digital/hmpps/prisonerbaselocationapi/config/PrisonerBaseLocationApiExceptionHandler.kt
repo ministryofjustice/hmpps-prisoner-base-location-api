@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exceptions.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.exceptions.ResponseException
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestControllerAdvice
@@ -71,6 +72,16 @@ class PrisonerBaseLocationApiExceptionHandler {
         userMessage = e.message,
       ),
     ).also { log.info("NotFound exception: {}", e.message) }
+
+  @ExceptionHandler(ResponseException::class)
+  fun handle(e: ResponseException): ResponseEntity<ErrorResponse> = ResponseEntity.status(e.statusCode)
+    .body(
+      ErrorResponse(
+        status = e.statusCode,
+        developerMessage = "${e.statusCode} Response error: ${e.message}",
+        userMessage = e.message,
+      ),
+    ).also { log.error("Response exception: statusCode: {}, message: {}, upstream: {}, uri: {}, cause: {}", e.statusCode, e.message, e.upstream, e.uri, e.cause?.message) }
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> = ResponseEntity

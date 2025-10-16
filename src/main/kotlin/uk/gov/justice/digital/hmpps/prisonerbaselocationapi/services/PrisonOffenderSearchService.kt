@@ -11,11 +11,13 @@ class PrisonOffenderSearchService(
   private val prisonOffenderSearchWebClient: WebClient,
   private val webClientExtension: WebClientExtension,
 ) {
-  fun getPrisonOffender(nomisNumber: String): POSPrisoner = prisonOffenderSearchWebClient.get()
-    .uri("/prisoner/{nomisNumber}", nomisNumber)
-    .retrieve()
-    .onServerErrorTerminate()
-    .bodyToMono(POSPrisoner::class.java)
-    .retryWhen(webClientExtension.retryForIdempotentRequest())
-    .block()!!
+  fun getPrisonOffender(nomisNumber: String): POSPrisoner = "/prisoner/{nomisNumber}".let { uri ->
+    prisonOffenderSearchWebClient.get()
+      .uri(uri, nomisNumber)
+      .retrieve()
+      .onServerErrorTerminate()
+      .bodyToMono(POSPrisoner::class.java)
+      .retryWhen(webClientExtension.retryForIdempotentRequest(uri, "Prisoner Search"))
+      .block()!!
+  }
 }
