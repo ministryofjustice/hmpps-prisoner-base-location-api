@@ -31,21 +31,21 @@ class ApiMockServerExtension :
   override fun afterAll(context: ExtensionContext): Unit = apiMockServer.stop()
 }
 
-class ApiMockServer(
+open class ApiMockServer(
   port: Int = WIREMOCK_PORT,
 ) : WireMockServer(port) {
   val authHeader = "Bearer ${HmppsAuthMockServer.TOKEN}"
 
   fun stubForGet(
     path: String,
-    body: String,
-    status: HttpStatus = HttpStatus.OK,
+    body: String? = null,
+    status: Int = HttpStatus.OK.value(),
   ) = stubForGet(mappingBuilder(path = path), body, status)
 
   fun stubForGet(
     pathPattern: UrlPathPattern,
-    body: String,
-    status: HttpStatus = HttpStatus.OK,
+    body: String? = null,
+    status: Int = HttpStatus.OK.value(),
   ) = stubForGet(mappingBuilder(pathPattern = pathPattern), body, status)
 
   fun stubForRetryGet(
@@ -86,8 +86,8 @@ class ApiMockServer(
 
   private fun stubForGet(
     mappingBuilder: () -> MappingBuilder,
-    body: String,
-    status: HttpStatus,
+    body: String? = null,
+    status: Int,
   ) {
     stubFor(
       mappingBuilder.invoke()
@@ -97,8 +97,10 @@ class ApiMockServer(
         ).willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(status.value())
-            .withBody(body.trimIndent()),
+            .withStatus(status)
+            .also {
+              body?.let { body -> it.withBody(body.trimIndent()) }
+            },
         ),
     )
   }
