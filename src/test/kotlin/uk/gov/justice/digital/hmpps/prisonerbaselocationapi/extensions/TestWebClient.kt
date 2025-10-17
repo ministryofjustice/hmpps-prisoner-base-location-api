@@ -10,7 +10,7 @@ import java.time.Duration
 class TestWebClient(
   val baseUrl: String,
   connectTimeoutMillis: Int = 10_000,
-  responseTimeoutSeconds: Long = 15,
+  responseTimeoutMillis: Int = 15_000,
 ) {
   private val httpClient: HttpClient
   val client: WebClient
@@ -18,7 +18,7 @@ class TestWebClient(
   init {
     httpClient = HttpClient.create()
       .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis)
-      .responseTimeout(Duration.ofSeconds(responseTimeoutSeconds))
+      .responseTimeout(Duration.ofMillis(responseTimeoutMillis.toLong()))
 
     client = WebClient.builder()
       .baseUrl(baseUrl)

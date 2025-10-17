@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.serviceUnavailable
+import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern
 import com.github.tomakehurst.wiremock.stubbing.Scenario
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -65,6 +66,24 @@ class ApiMockServer(
     body: String,
   ) = stubForRetryGet(scenario, mappingBuilder(pathPattern = pathPattern), numberOfRequests, failedStatus, endStatus, body)
 
+  fun stubForRetryGetWithFault(
+    scenario: String,
+    path: String,
+    numberOfRequests: Int = 3,
+    fault: Fault = Fault.CONNECTION_RESET_BY_PEER,
+    endStatus: Int = 200,
+    body: String,
+  ) = stubForRetryGetWithFault(scenario, mappingBuilder(path = path), numberOfRequests, fault, endStatus, body)
+
+  fun stubForRetryGetWithDelays(
+    scenario: String,
+    path: String,
+    numberOfRequests: Int = 3,
+    delayMs: Int = 5_000,
+    endStatus: Int = 200,
+    body: String,
+  ) = stubForRetryGetWithDelays(scenario, mappingBuilder(path = path), numberOfRequests, delayMs, endStatus, body)
+
   private fun stubForGet(
     mappingBuilder: () -> MappingBuilder,
     body: String,
@@ -111,6 +130,63 @@ class ApiMockServer(
                   if (it == numberOfRequests) response.withBody(body)
                 }
             },
+          ).willSetStateTo("RETRY$it"),
+      )
+    }
+  }
+
+  private fun stubForRetryGetWithFault(
+    scenario: String,
+    mappingBuilder: () -> MappingBuilder,
+    numberOfRequests: Int,
+    fault: Fault,
+    endStatus: Int,
+    body: String,
+  ) {
+    (1..numberOfRequests).forEach {
+      stubFor(
+        mappingBuilder.invoke()
+          .withHeader(
+            "Authorization",
+            matching("Bearer ${HmppsAuthMockServer.TOKEN}"),
+          ).inScenario(scenario)
+          .whenScenarioStateIs(if (it == 1) Scenario.STARTED else "RETRY${it - 1}")
+          .willReturn(
+            when (it) {
+              numberOfRequests -> aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withStatus(endStatus)
+                .withBody(body)
+
+              else -> aResponse().withFault(fault)
+            },
+          ).willSetStateTo("RETRY$it"),
+      )
+    }
+  }
+
+  private fun stubForRetryGetWithDelays(
+    scenario: String,
+    mappingBuilder: () -> MappingBuilder,
+    numberOfRequests: Int,
+    delayMs: Int,
+    endStatus: Int,
+    body: String,
+  ) {
+    (1..numberOfRequests).forEach {
+      stubFor(
+        mappingBuilder.invoke()
+          .withHeader(
+            "Authorization",
+            matching("Bearer ${HmppsAuthMockServer.TOKEN}"),
+          ).inScenario(scenario)
+          .whenScenarioStateIs(if (it == 1) Scenario.STARTED else "RETRY${it - 1}")
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(endStatus)
+              .withBody(body)
+              .also { response -> if (it != numberOfRequests) response.withFixedDelay(delayMs) },
           ).willSetStateTo("RETRY$it"),
       )
     }
