@@ -1,0 +1,123 @@
+package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.mockservers
+
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.MappingBuilder
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.matching
+import com.github.tomakehurst.wiremock.client.WireMock.serviceUnavailable
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern
+import com.github.tomakehurst.wiremock.stubbing.Scenario
+import org.junit.jupiter.api.extension.AfterAllCallback
+import org.junit.jupiter.api.extension.BeforeAllCallback
+import org.junit.jupiter.api.extension.BeforeEachCallback
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.springframework.http.HttpStatus
+import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.HmppsAuthMockServer
+
+const val WIREMOCK_PORT = 4000
+
+class ApiMockServerExtension :
+  BeforeAllCallback,
+  AfterAllCallback,
+  BeforeEachCallback {
+  companion object {
+    val apiMockServer = ApiMockServer()
+  }
+
+  override fun beforeAll(context: ExtensionContext): Unit = apiMockServer.start()
+  override fun beforeEach(context: ExtensionContext): Unit = apiMockServer.resetAll()
+  override fun afterAll(context: ExtensionContext): Unit = apiMockServer.stop()
+}
+
+class ApiMockServer(
+  port: Int = WIREMOCK_PORT,
+) : WireMockServer(port) {
+  val authHeader = "Bearer ${HmppsAuthMockServer.TOKEN}"
+
+  fun stubForGet(
+    path: String,
+    body: String,
+    status: HttpStatus = HttpStatus.OK,
+  ) = stubForGet(mappingBuilder(path = path), body, status)
+
+  fun stubForGet(
+    pathPattern: UrlPathPattern,
+    body: String,
+    status: HttpStatus = HttpStatus.OK,
+  ) = stubForGet(mappingBuilder(pathPattern = pathPattern), body, status)
+
+  fun stubForRetryGet(
+    scenario: String,
+    path: String,
+    numberOfRequests: Int = 3,
+    failedStatus: Int,
+    endStatus: Int,
+    body: String,
+  ) = stubForRetryGet(scenario, mappingBuilder(path = path), numberOfRequests, failedStatus, endStatus, body)
+
+  fun stubForRetryGet(
+    scenario: String,
+    pathPattern: UrlPathPattern,
+    numberOfRequests: Int = 3,
+    failedStatus: Int,
+    endStatus: Int,
+    body: String,
+  ) = stubForRetryGet(scenario, mappingBuilder(pathPattern = pathPattern), numberOfRequests, failedStatus, endStatus, body)
+
+  private fun stubForGet(
+    mappingBuilder: () -> MappingBuilder,
+    body: String,
+    status: HttpStatus,
+  ) {
+    stubFor(
+      mappingBuilder.invoke()
+        .withHeader(
+          "Authorization",
+          matching(authHeader),
+        ).willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(body.trimIndent()),
+        ),
+    )
+  }
+
+  private fun stubForRetryGet(
+    scenario: String,
+    mappingBuilder: () -> MappingBuilder,
+    numberOfRequests: Int,
+    failedStatus: Int,
+    endStatus: Int,
+    body: String,
+  ) {
+    (1..numberOfRequests).forEach {
+      stubFor(
+        mappingBuilder.invoke()
+          .withHeader(
+            "Authorization",
+            matching("Bearer ${HmppsAuthMockServer.TOKEN}"),
+          ).inScenario(scenario)
+          .whenScenarioStateIs(if (it == 1) Scenario.STARTED else "RETRY${it - 1}")
+          .willReturn(
+            if ((failedStatus == -1 && it != numberOfRequests) || (endStatus == -1 && it == numberOfRequests)) {
+              serviceUnavailable()
+            } else {
+              aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withStatus(if (it == numberOfRequests) endStatus else failedStatus)
+                .also { response ->
+                  if (it == numberOfRequests) response.withBody(body)
+                }
+            },
+          ).willSetStateTo("RETRY$it"),
+      )
+    }
+  }
+
+  private fun mappingBuilder(
+    path: String? = null,
+    pathPattern: UrlPathPattern? = null,
+  ): () -> MappingBuilder = { path?.let { get(path) } ?: get(pathPattern!!) }
+}
