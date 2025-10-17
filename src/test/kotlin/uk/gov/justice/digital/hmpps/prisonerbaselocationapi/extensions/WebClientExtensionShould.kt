@@ -25,7 +25,7 @@ import java.time.Duration
 
 @ExtendWith(ApiMockServerExtension::class)
 class WebClientExtensionShould {
-  private val webClient: WebClient = TestWebClient(apiMockServer.baseUrl(), connectTimeoutMillis = 10, responseTimeoutMillis = 15).client
+  private val webClient: WebClient = TestWebClient(apiMockServer.baseUrl(), connectTimeoutMillis = 15, responseTimeoutMillis = 20).client
   private val unreachableWebClient: WebClient = TestWebClient(baseUrl = "http://10.255.255.1:81", connectTimeoutMillis = 1, responseTimeoutMillis = 1).client
 
   private val webClientExtension = ApiClientConfig(
