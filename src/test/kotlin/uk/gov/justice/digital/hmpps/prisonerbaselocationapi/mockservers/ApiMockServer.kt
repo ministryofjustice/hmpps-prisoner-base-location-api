@@ -75,6 +75,15 @@ open class ApiMockServer(
     body: String,
   ) = stubForRetryGetWithFault(scenario, mappingBuilder(path = path), numberOfRequests, fault, endStatus, body)
 
+  fun stubForRetryGetWithFault(
+    scenario: String,
+    pathPattern: UrlPathPattern,
+    numberOfRequests: Int = 3,
+    fault: Fault = Fault.CONNECTION_RESET_BY_PEER,
+    endStatus: Int = 200,
+    body: String,
+  ) = stubForRetryGetWithFault(scenario, mappingBuilder(pathPattern = pathPattern), numberOfRequests, fault, endStatus, body)
+
   fun stubForRetryGetWithDelays(
     scenario: String,
     path: String,
@@ -83,6 +92,15 @@ open class ApiMockServer(
     endStatus: Int = 200,
     body: String,
   ) = stubForRetryGetWithDelays(scenario, mappingBuilder(path = path), numberOfRequests, delayMs, endStatus, body)
+
+  fun stubForRetryGetWithDelays(
+    scenario: String,
+    pathPattern: UrlPathPattern,
+    numberOfRequests: Int = 3,
+    delayMs: Int = 5_000,
+    endStatus: Int = 200,
+    body: String,
+  ) = stubForRetryGetWithDelays(scenario, mappingBuilder(pathPattern = pathPattern), numberOfRequests, delayMs, endStatus, body)
 
   private fun stubForGet(
     mappingBuilder: () -> MappingBuilder,

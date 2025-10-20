@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.service
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
-import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
@@ -14,14 +14,16 @@ class PrisonOffenderSearchServiceTest : IntegrationTestBase() {
     hmppsAuth.stubGrantToken()
     prisonOffenderSearch.stubGetPrisonOffender()
 
+    val prisonNumber = "A1234AA"
+
     webTestClient.get()
-      .uri("v1/persons/A1234AA/prisoner-base-location")
+      .uri("v1/persons/{prisonNumber}/prisoner-base-location", prisonNumber)
       .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")))
       .exchange()
       .expectStatus().isOk
 
     prisonOffenderSearch.verify(
-      getRequestedFor(urlEqualTo("/prisoner/A1234AA"))
+      getRequestedFor(urlMatching("/prisoner/$prisonNumber.*"))
         .withHeader("Authorization", WireMock.equalTo("Bearer ABCDE")),
     )
   }
