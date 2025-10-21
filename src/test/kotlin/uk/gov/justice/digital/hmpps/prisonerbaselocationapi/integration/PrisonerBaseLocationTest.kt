@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.PrisonOffenderSearchApiExtension.Companion.prisonOffenderSearch
 
@@ -33,6 +34,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
       @Test
       fun `prisoner info not found - return 404 not found`() {
         hmppsAuth.stubGrantToken()
+        prisonOffenderSearch.stubUpstreamError(HttpStatus.NOT_FOUND)
 
         webTestClient
           .get()
@@ -43,7 +45,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
       }
 
       @Test
-      fun `prison offender search api error - return 500 internal server error`() {
+      fun `prison offender search api error - return 5xx server error`() {
         hmppsAuth.stubGrantToken()
         prisonOffenderSearch.stubUpstreamError()
 
@@ -52,7 +54,7 @@ class PrisonerBaseLocationTest : IntegrationTestBase() {
           .uri("v1/persons/$validNomisNumber/prisoner-base-location")
           .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO")))
           .exchange()
-          .expectStatus().is5xxServerError
+          .expectStatus().isEqualTo(599)
       }
     }
 

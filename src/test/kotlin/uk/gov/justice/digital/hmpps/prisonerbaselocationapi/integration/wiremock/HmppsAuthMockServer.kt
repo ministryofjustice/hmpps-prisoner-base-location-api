@@ -30,6 +30,10 @@ class HmppsAuthApiExtension :
 }
 
 class HmppsAuthMockServer : WireMockServer(8090) {
+  companion object {
+    const val TOKEN = "ABCDE"
+  }
+
   fun stubGrantToken() {
     stubFor(
       post(urlPathEqualTo("/auth/oauth/token"))
@@ -40,7 +44,7 @@ class HmppsAuthMockServer : WireMockServer(8090) {
               """
                 {
                   "token_type": "bearer",
-                  "access_token": "ABCDE",
+                  "access_token": "$TOKEN",
                   "expires_in": ${LocalDateTime.now().plusHours(2).toEpochSecond(ZoneOffset.UTC)}
                 }
               """.trimIndent(),

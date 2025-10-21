@@ -17,12 +17,12 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${api.hmpps-auth.base-url}/.well-known/jwks.json
+          jwk-set-uri: ${hmpps-auth.url}/.well-known/jwks.json
 
       client:
         provider:
           hmpps-auth:
-            token-uri: ${api.hmpps-auth.base-url}/oauth/token
+            token-uri: ${hmpps-auth.url}/oauth/token
 
         registration:
           hmpps-prisoner-base-location-api:
@@ -64,8 +64,8 @@ management:
       cache:
         time-to-live: 2000ms
 
-api:
-  hmpps-auth:
-    base-url: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
-  prisoner-offender-search:
-    base-url: "https://prisoner-search-dev.prison.service.justice.gov.uk"
+api.client:
+  health-timeout: 2s
+  response-timeout: 20
+  max-retry-attempts: 3
+  min-back-off-duration: 3s
