@@ -44,13 +44,13 @@ class WebClientConfiguration(
 @ConfigurationProperties(prefix = "api.client")
 data class ApiClientConfig(
   val healthTimeout: Duration = DEFAULT_HEALTH_TIMEOUT,
-  val responseTimeout: Duration = DEFAULT_TIMEOUT,
+  val timeout: Duration = DEFAULT_TIMEOUT,
   val maxRetryAttempts: Long = DEFAULT_MAX_RETRY_ATTEMPTS,
   val minBackOffDuration: Duration = DEFAULT_MIN_BACKOFF_DURATION,
   val statusCodeRetryExhausted: Int = HttpStatus.SERVICE_UNAVAILABLE.value(),
   val clients: Map<String, ApiEndpointConfig> = emptyMap(),
 ) {
-  fun getResponseTimeout(client: String) = clients[client]?.responseTimeout ?: responseTimeout
+  fun getResponseTimeout(client: String) = clients[client]?.responseTimeout ?: timeout
   fun getBaseUrl(client: String) = clients[client]!!.baseUrl
 }
 
