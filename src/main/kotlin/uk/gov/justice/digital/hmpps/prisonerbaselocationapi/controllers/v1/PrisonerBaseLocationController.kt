@@ -24,7 +24,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 class PrisonerBaseLocationController(
   private val prisonOffenderSearchService: PrisonOffenderSearchService,
 ) {
-  @GetMapping("{nomisNumber:^[A-Z]\\d{4}[A-Z]{2}$}/prisoner-base-location")
+  @GetMapping("{prisonNumber:^[A-Z]\\d{4}[A-Z]{2}$}/prisoner-base-location")
   @Operation(
     summary = "Returns prisoner's base location",
     description = "Requires role ROLE_PRISONER_BASE_LOCATION__LOCATIONS_RO",
@@ -58,9 +58,9 @@ class PrisonerBaseLocationController(
     ],
   )
   fun getPrisonerBaseLocation(
-    @Parameter(description = "A NOMIS number", example = "A1234AA") @PathVariable nomisNumber: String,
+    @Parameter(description = "A prison number, the identifier of a prisoner in Prison", example = "A1234AA") @PathVariable prisonNumber: String,
   ): PrisonerBaseLocation {
-    val offender = prisonOffenderSearchService.getPrisonOffender(nomisNumber)
+    val offender = prisonOffenderSearchService.getPrisonOffender(prisonNumber)
     val location = offender.toBaseLocation()
 
     return location

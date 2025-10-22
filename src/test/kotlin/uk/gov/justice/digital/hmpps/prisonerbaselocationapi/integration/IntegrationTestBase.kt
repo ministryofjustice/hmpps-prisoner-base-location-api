@@ -21,6 +21,10 @@ import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
 abstract class IntegrationTestBase {
+  companion object {
+    val maxRetryAttempts = 2
+    val apiClientTimeoutMs = 20
+  }
 
   @Autowired
   protected lateinit var webTestClient: WebTestClient
@@ -34,7 +38,11 @@ abstract class IntegrationTestBase {
     scopes: List<String> = listOf("read"),
   ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisationHeader(username = username, scope = scopes, roles = roles)
 
+  internal fun setAuthorisation(role: String) = setAuthorisation(roles = listOf(role))
+
   protected fun stubPingWithResponse(status: Int) {
     hmppsAuth.stubHealthPing(status)
   }
+
+  protected fun WebTestClient.BodyContentSpec.notEmpty() = this.jsonPath("$").isNotEmpty
 }

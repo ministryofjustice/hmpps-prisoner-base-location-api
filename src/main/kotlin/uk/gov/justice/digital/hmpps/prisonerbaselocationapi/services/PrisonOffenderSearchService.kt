@@ -11,9 +11,9 @@ class PrisonOffenderSearchService(
   private val prisonOffenderSearchWebClient: WebClient,
   private val webClientExtension: WebClientExtension,
 ) {
-  fun getPrisonOffender(nomisNumber: String): POSPrisoner = "/prisoner/{nomisNumber}".let { uri ->
+  fun getPrisonOffender(prisonNumber: String): POSPrisoner = "/prisoner/{prisonNumber}?$GET_PRISONER_PARAMS".let { uri ->
     prisonOffenderSearchWebClient.get()
-      .uri(uri, nomisNumber)
+      .uri(uri, prisonNumber)
       .retrieve()
       .onServerErrorTerminate()
       .bodyToMono(POSPrisoner::class.java)
@@ -21,3 +21,5 @@ class PrisonOffenderSearchService(
       .block()!!
   }
 }
+
+private const val GET_PRISONER_PARAMS = "responseFields=firstName,lastName,inOutStatus,prisonId,lastPrisonId,lastMovementTypeCode,receptionDate"
