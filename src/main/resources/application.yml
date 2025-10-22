@@ -66,6 +66,6 @@ management:
 
 api.client:
   health-timeout: 2s
-  response-timeout: 20
+  response-timeout: 20s
   max-retry-attempts: 3
   min-back-off-duration: 3s

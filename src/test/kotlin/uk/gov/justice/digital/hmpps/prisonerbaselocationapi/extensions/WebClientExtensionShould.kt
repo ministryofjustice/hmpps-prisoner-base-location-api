@@ -30,7 +30,7 @@ class WebClientExtensionShould {
 
   private val webClientExtension = ApiClientConfig(
     healthTimeout = Duration.ofMillis(10),
-    timeout = Duration.ofMillis(20),
+    responseTimeout = Duration.ofMillis(20),
     maxRetryAttempts = 2,
     minBackOffDuration = Duration.ofMillis(5),
     statusCodeRetryExhausted = 599,
