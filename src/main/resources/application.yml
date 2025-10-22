@@ -5,9 +5,6 @@ info.app:
 spring:
   application:
     name: hmpps-prisoner-base-location-api
-  codec:
-    max-in-memory-size: 10MB
-
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
     serialization:
@@ -31,6 +28,9 @@ spring:
             client-secret: ${api.client.secret}
             authorization-grant-type: client_credentials
             scope: read
+  http:
+    codecs:
+      max-in-memory-size: 10MB
 
 server:
   port: 8080
