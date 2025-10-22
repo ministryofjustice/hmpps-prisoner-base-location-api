@@ -1,7 +1,8 @@
 hmpps-auth.url: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
 
 api.client:
-  health-timeout: 2s
+  health-timeout: 3s
+  timeout: 25s
   clients:
     prisoner-offender-search:
       base-url: "https://prisoner-search-dev.prison.service.justice.gov.uk"
