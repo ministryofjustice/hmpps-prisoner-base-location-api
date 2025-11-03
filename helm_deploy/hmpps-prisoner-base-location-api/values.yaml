@@ -29,8 +29,8 @@ generic-service:
     hmpps-prisoner-base-location-api-application-insights:
       APPLICATIONINSIGHTS_CONNECTION_STRING: "APPLICATIONINSIGHTS_CONNECTION_STRING"
     hmpps-prisoner-base-location-api-client-creds:
-      API_CLIENT_ID: "API_CLIENT_ID"
-      API_CLIENT_SECRET: "API_CLIENT_SECRET"
+      API_CLIENT_ID: "SYSTEM_CLIENT_ID"
+      API_CLIENT_SECRET: "SYSTEM_CLIENT_SECRET"
 
 
   allowlist:
