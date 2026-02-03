@@ -30,7 +30,7 @@ class WebClientExtensionShould {
 
   private val webClientExtension = ApiClientConfig(
     healthTimeout = Duration.ofMillis(10),
-    responseTimeout = Duration.ofMillis(20),
+    responseTimeout = Duration.ofMillis(30),
     maxRetryAttempts = 2,
     minBackOffDuration = Duration.ofMillis(5),
     statusCodeRetryExhausted = 599,
@@ -107,7 +107,7 @@ class WebClientExtensionShould {
 
       @Test
       fun `retry idempotent request of GET, after response timed out`() {
-        apiMockServer.stubForRetryGetWithDelays("Retry response timed out", getPath3, 2, 20, 200, body)
+        apiMockServer.stubForRetryGetWithDelays("Retry response timed out", getPath3, 2, 30, 200, body)
         val result = getRequestWithRetry(getPath3)
         assertTrue(result.success)
         verifyApiGetPath(url = getPath3, expectedCount = 2)
