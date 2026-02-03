@@ -7,9 +7,12 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.UrlPattern
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.ClassOrderer
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestClassOrder
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -24,6 +27,7 @@ import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.mockservers.ApiMockS
 import java.time.Duration
 
 @ExtendWith(ApiMockServerExtension::class)
+@TestClassOrder(ClassOrderer.OrderAnnotation::class)
 class WebClientExtensionShould {
   private val webClient: WebClient = TestWebClient(apiMockServer.baseUrl(), connectTimeoutMillis = 15, responseTimeoutMillis = 20).client
   private val unreachableWebClient: WebClient = TestWebClient(baseUrl = "http://10.255.255.1:81", connectTimeoutMillis = 1, responseTimeoutMillis = 1).client
@@ -43,6 +47,7 @@ class WebClientExtensionShould {
     private val body = """{"success": true}"""
 
     @Nested
+    @Order(3)
     @DisplayName("Given successful response from upstream")
     inner class GivenResponseFromUpstream {
       private val getPath = "/path"
@@ -67,6 +72,7 @@ class WebClientExtensionShould {
     }
 
     @Nested
+    @Order(1)
     @DisplayName("Given an error response from upstream")
     inner class GivenErrorResponseReceived {
       private val getPath2 = "/path2"
@@ -93,6 +99,7 @@ class WebClientExtensionShould {
     }
 
     @Nested
+    @Order(2)
     @DisplayName("Given no response from upstream")
     inner class GivenNoResponseFromUpstream {
       private val getPath3 = "/path3"
