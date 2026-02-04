@@ -23,14 +23,16 @@ import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.mockservers.ApiMockS
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.mockservers.ApiMockServerExtension.Companion.apiMockServer
 import java.time.Duration
 
+private const val RESPONSE_TIMEOUT_MS = 60
+
 @ExtendWith(ApiMockServerExtension::class)
 class WebClientExtensionShould {
-  private val webClient: WebClient = TestWebClient(apiMockServer.baseUrl(), connectTimeoutMillis = 15, responseTimeoutMillis = 20).client
+  private val webClient: WebClient = TestWebClient(apiMockServer.baseUrl(), connectTimeoutMillis = 15, responseTimeoutMillis = RESPONSE_TIMEOUT_MS).client
   private val unreachableWebClient: WebClient = TestWebClient(baseUrl = "http://10.255.255.1:81", connectTimeoutMillis = 1, responseTimeoutMillis = 1).client
 
   private val webClientExtension = ApiClientConfig(
     healthTimeout = Duration.ofMillis(10),
-    responseTimeout = Duration.ofMillis(20),
+    responseTimeout = Duration.ofMillis(RESPONSE_TIMEOUT_MS.toLong()),
     maxRetryAttempts = 2,
     minBackOffDuration = Duration.ofMillis(5),
     statusCodeRetryExhausted = 599,
@@ -107,7 +109,7 @@ class WebClientExtensionShould {
 
       @Test
       fun `retry idempotent request of GET, after response timed out`() {
-        apiMockServer.stubForRetryGetWithDelays("Retry response timed out", getPath3, 2, 20, 200, body)
+        apiMockServer.stubForRetryGetWithDelays("Retry response timed out", getPath3, 2, RESPONSE_TIMEOUT_MS, 200, body)
         val result = getRequestWithRetry(getPath3)
         assertTrue(result.success)
         verifyApiGetPath(url = getPath3, expectedCount = 2)

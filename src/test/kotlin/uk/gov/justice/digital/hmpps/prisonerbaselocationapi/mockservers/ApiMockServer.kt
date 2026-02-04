@@ -9,9 +9,11 @@ import com.github.tomakehurst.wiremock.client.WireMock.serviceUnavailable
 import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern
 import com.github.tomakehurst.wiremock.stubbing.Scenario
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.extension.AfterAllCallback
+import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
-import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.prisonerbaselocationapi.integration.wiremock.HmppsAuthMockServer
@@ -21,13 +23,16 @@ const val WIREMOCK_PORT = 4000
 class ApiMockServerExtension :
   BeforeAllCallback,
   AfterAllCallback,
-  BeforeEachCallback {
+  AfterEachCallback {
   companion object {
     val apiMockServer = ApiMockServer()
   }
 
-  override fun beforeAll(context: ExtensionContext): Unit = apiMockServer.start()
-  override fun beforeEach(context: ExtensionContext): Unit = apiMockServer.resetAll()
+  override fun beforeAll(context: ExtensionContext) {
+    apiMockServer.start()
+    await until { apiMockServer.isRunning }
+  }
+  override fun afterEach(context: ExtensionContext): Unit = apiMockServer.resetAll()
   override fun afterAll(context: ExtensionContext): Unit = apiMockServer.stop()
 }
 
