@@ -19,6 +19,7 @@ dependencies {
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.37") {
     exclude(group = "io.swagger.core.v3")
   }
+  testImplementation("org.awaitility:awaitility-kotlin")
 }
 
 kotlin {
