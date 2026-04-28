@@ -69,5 +69,3 @@ api.client:
   response-timeout: 20s
   max-retry-attempts: 3
   min-back-off-duration: 3s
-
-springdoc.swagger-ui.version: 5.32.1
