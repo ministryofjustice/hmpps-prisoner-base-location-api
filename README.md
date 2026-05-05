@@ -52,7 +52,12 @@ API_CLIENT_SECRET=xxx
 API_CLIENT_CLIENTS_PRISONER-OFFENDER-SEARCH_BASE-URL=https://prisoner-search-dev.prison.service.justice.gov.uk
 ```
 
-### Running the application in Intellij
+### Running the application in Docker compose with env
+e.g. with `.env.local`
+```shell
+docker compose --env-file .env.local up -d
+```
+### Running the application in IntelliJ
 
 ```bash
 docker compose pull && docker compose up --scale hmpps-prisoner-base-location-api=0 -d
@@ -62,3 +67,23 @@ docker compose pull && docker compose up --scale hmpps-prisoner-base-location-ap
 will just start a docker instance of HMPPS Auth. The application should then be started with a `dev` active profile
 in Intellij.
 
+
+## Run docker image on local
+
+### Build a local docker image
+1. Build the app jar
+2. Copy jar to project root
+3. Build docker image
+
+```shell
+BUILD_NUMBER=1_0_0 && ./gradlew clean assemble && cp ./build/libs/*.jar .
+```
+```shell
+BUILD_NUMBER=1_0_0 && docker build --build-arg BUILD_NUMBER=$BUILD_NUMBER . -t "hmpps-prisoner-base-location-api:local"
+```
+### Run a local docker image
+```shell
+APP=hmpps-prisoner-base-location-api && docker run --name $APP --env-file .env.local -p 8080:8080 -d "${APP}:local"
+```
+
+###
