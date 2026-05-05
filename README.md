@@ -76,14 +76,14 @@ in Intellij.
 3. Build docker image
 
 ```shell
-BUILD_NUMBER=1_0_0 && ./gradlew clean assemble && cp ./build/libs/*.jar .
+BUILD_NUMBER=1_0_0 ./gradlew clean assemble && cp ./build/libs/*.jar .
 ```
 ```shell
-BUILD_NUMBER=1_0_0 && docker build --build-arg BUILD_NUMBER=$BUILD_NUMBER . -t "hmpps-prisoner-base-location-api:local"
+BUILD_NUMBER=1_0_0 docker build --build-arg BUILD_NUMBER=$BUILD_NUMBER . -t "hmpps-prisoner-base-location-api:local"
 ```
 ### Run a local docker image
 ```shell
-APP=hmpps-prisoner-base-location-api && docker run --name $APP --env-file .env.local -p 8080:8080 -d "${APP}:local"
+APP=hmpps-prisoner-base-location-api docker run --name $APP --env-file .env.local -p 8080:8080 -d "${APP}:local"
 ```
 
 ###
