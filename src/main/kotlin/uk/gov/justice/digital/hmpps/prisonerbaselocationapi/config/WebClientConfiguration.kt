@@ -31,7 +31,7 @@ class WebClientConfiguration(
   fun prisonOffenderSearchWebClient(
     authorizedClientManager: OAuth2AuthorizedClientManager,
     builder: Builder,
-  ): WebClient = "prisoner-offender-search".let { client ->
+  ): WebClient = "prisoneroffendersearch".let { client ->
     builder.authorisedWebClient(
       authorizedClientManager,
       registrationId = "hmpps-prisoner-base-location-api",
