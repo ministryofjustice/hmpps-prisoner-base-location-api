@@ -27,7 +27,7 @@ This API application depends on several services to run.
 | Dependency            | Description                                   | Default | Override Env Var                                        |
 |---------------------  |-----------------------------------------------|---------|---------------------------------------------------------|
 | hmpps-auth            | OAuth2 API server for authenticating requests |         | `HMPPS_AUTH_URL`                                        |
-| Prisoner Search API   | API for retrieving prisoner profile           |         | `API_CLIENT_CLIENTS_PRISONER-OFFENDER-SEARCH_BASE-URL`  |
+| Prisoner Search API   | API for retrieving prisoner profile           |         | `API_CLIENT_CLIENTS_PRISONEROFFENDERSEARCH_BASE_URL`  |
 
 ```bash
 docker compose pull && docker compose up -d
@@ -49,7 +49,7 @@ These can be set in a `.env` file, e.g.
 HMPPS_AUTH_URL=https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 API_CLIENT_ID=xxx
 API_CLIENT_SECRET=xxx
-API_CLIENT_CLIENTS_PRISONER-OFFENDER-SEARCH_BASE-URL=https://prisoner-search-dev.prison.service.justice.gov.uk
+API_CLIENT_CLIENTS_PRISONEROFFENDERSEARCH_BASE_URL=https://prisoner-search-dev.prison.service.justice.gov.uk
 ```
 
 ### Running the application in Docker compose with env
