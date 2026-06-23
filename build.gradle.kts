@@ -33,3 +33,7 @@ tasks {
     compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
   }
 }
+
+dependencyCheck {
+  suppressionFiles.add("extra-suppressions.xml")
+}
