@@ -4,6 +4,6 @@ api.client:
   health-timeout: 3s
   timeout: 25s
   clients:
-    prisoner-offender-search:
+    prisoneroffendersearch:
       base-url: "https://prisoner-search-dev.prison.service.justice.gov.uk"
       response-timeout: 20s
