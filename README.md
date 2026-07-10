@@ -19,8 +19,7 @@ The application comes with a `dev` spring profile that includes default settings
 necessary when deploying to kubernetes as these values are included in the helm configuration templates -
 e.g. `values-dev.yaml`.
 
-There is also a `docker-compose.yml` that can be used to run a local instance of the template in docker and also an
-instance of HMPPS Auth (required if your service calls out to other services using a token).
+There is also a `docker-compose.yml` that can be used to run a local instance of the template in docker.
 
 This API application depends on several services to run.
 
@@ -29,11 +28,57 @@ This API application depends on several services to run.
 | hmpps-auth            | OAuth2 API server for authenticating requests |         | `HMPPS_AUTH_URL`                                        |
 | Prisoner Search API   | API for retrieving prisoner profile           |         | `API_CLIENT_CLIENTS_PRISONEROFFENDERSEARCH_BASE_URL`  |
 
-```bash
-docker compose pull && docker compose up -d
-```
 
-will build the application and run it and HMPPS Auth within a local docker instance.
+### Preparation
+Obtain API client credentials
+- populate those value from kubernetes secrets (`hmpps-prisoner-base-location-api-client-creds`)
+  ```shell
+  kubectl -n hmpps-prisoner-base-location-dev get secret hmpps-prisoner-base-location-api-client-creds -o json | jq '.data | map_values(@base64d)' 
+  ```
+- fill in the API client credentials in these files: `API_CLIENT_ID` and `API_CLIENT_SECRET`
+    - `.env` for running outside docker
+    - `.env.docker` for running in docker
+
+---
+### Running with docker compose
+The easiest way to run the app is to use docker compose to create the service and all dependencies.
+1. Prepare `.env.docker` (from `.env.docker.sample`)
+    ```shell
+    cp .env.docker.sample .env.docker
+    ```
+    - fill in the API client credentials in `.env.docker`
+      see above to obtain these
+    - in case of `$` in value, escape them (with `$$`)
+2. Then run
+   ```shell
+   docker compose up
+   ```
+   will run the application (from latest image) and PostgreSQL within a local docker instance.
+3. Check if application is up and running
+    * See `http://localhost:8080/health` to check the app is running.
+    * See `http://localhost:8080/swagger-ui/index.html` to explore the OpenAPI spec document.
+    * See `http://localhost:8080/info` to check the app info
+
+It connects HMPPS Auth and other upstream APIs in `dev` environment. Thus, a set of valid dev API clients are required to run the application.
+
+---
+### Running the application in IntelliJ
+1. Prepare `.env` (from `.env.local.sample`)
+    ```shell
+    cp .env.local.sample .env
+    ```
+    - fill in the API client credentials in `.env`:
+      see above to obtain these
+2. Run `bootRun` with  `.env` file prepared above
+    * either IntelliJ
+        - run `bootRun` with `EnvFile` plugin
+        - add `.env`
+        - enable integrations
+    * or Gradle wrapper
+      ```shell
+      export $(grep -v '^#' .env | xargs)
+      ./gradlew bootRun
+      ```
 
 ### Environment variables
 Defining env var for *local* run
@@ -43,29 +88,6 @@ Defining env var for *local* run
 | `API_CLIENT_ID`     | API client ID for accessing Prisoner Search API     |
 | `API_CLIENT_SECRET` | API client secret for accessing Prisoner Search API |
 _*_ These values can be obtained from k8s secrets in `dev` env.
-
-These can be set in a `.env` file, e.g.
-```dotenv
-HMPPS_AUTH_URL=https://sign-in-dev.hmpps.service.justice.gov.uk/auth
-API_CLIENT_ID=xxx
-API_CLIENT_SECRET=xxx
-API_CLIENT_CLIENTS_PRISONEROFFENDERSEARCH_BASE_URL=https://prisoner-search-dev.prison.service.justice.gov.uk
-```
-
-### Running the application in Docker compose with env
-e.g. with `.env.local`
-```shell
-docker compose --env-file .env.local up -d
-```
-### Running the application in IntelliJ
-
-```bash
-docker compose pull && docker compose up --scale hmpps-prisoner-base-location-api=0 -d
-```
-
-
-will just start a docker instance of HMPPS Auth. The application should then be started with a `dev` active profile
-in Intellij.
 
 
 ## Run docker image on local
@@ -83,7 +105,7 @@ BUILD_NUMBER=1_0_0 docker build --build-arg BUILD_NUMBER=$BUILD_NUMBER . -t "hmp
 ```
 ### Run a local docker image
 ```shell
-APP=hmpps-prisoner-base-location-api docker run --name $APP --env-file .env.local -p 8080:8080 -d "${APP}:local"
+APP=hmpps-prisoner-base-location-api && docker run --name $APP --env-file .env -p 8080:8080 -d "${APP}:local"
 ```
 
 ###
