@@ -76,8 +76,6 @@ sonar-project.properties
 #Jar files for docker build
 /*.jar
 
-#Misc
-
 #Everything else:
 .DS_Store
 /.env
