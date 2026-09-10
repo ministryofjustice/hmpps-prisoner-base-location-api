@@ -1,27 +1,19 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.7"
-  kotlin("plugin.spring") version "2.4.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.8"
+  kotlin("plugin.spring") version "2.4.10"
 }
 
 configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
 }
 
-ext["jackson-2-bom.version"] = "2.21.5"
-ext["jackson-bom.version"] = "3.1.5"
-ext["log4j2.version"] = "2.25.5"
-ext["tomcat.version"] = "11.0.24"
-ext["netty.version"] = "4.2.16.Final"
-
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.5.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-webclient")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3") {
-    implementation("org.webjars:swagger-ui:5.32.11")
-  }
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.5.0")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.1")
   testImplementation("org.springframework.boot:spring-boot-webtestclient")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.45") {
